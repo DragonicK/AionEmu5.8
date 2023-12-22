@@ -25,6 +25,9 @@ import com.aionemu.gameserver.questEngine.model.QuestEnv;
 import com.aionemu.gameserver.questEngine.model.QuestState;
 import com.aionemu.gameserver.questEngine.model.QuestStatus;
 import com.aionemu.gameserver.utils.PacketSendUtility;
+import com.aionemu.gameserver.services.item.ItemService;
+
+import java.awt.*;
 
 /**
  * @author MrPoke remod By Xitanium
@@ -47,20 +50,31 @@ public class _1322ALeafFromLodas extends QuestHandler {
 	@Override
 	public boolean onDialogEvent(QuestEnv env) {
 		final Player player = env.getPlayer();
+
 		int targetId = 0;
+
 		if (env.getVisibleObject() instanceof Npc)
 			targetId = ((Npc) env.getVisibleObject()).getNpcId();
+
 		QuestState qs = player.getQuestStateList().getQuestState(questId);
-		if (targetId == 730019) { // Lodas
+
+		if (targetId == 730019) // Lodas
+		{
 			if (qs == null || qs.getStatus() == QuestStatus.NONE) {
 				if (env.getDialog() == QuestDialog.START_DIALOG)
 					return sendQuestDialog(env, 1011);
-				else
+				else {
+					if (env.getDialog() == QuestDialog.ACCEPT_QUEST) {
+						ItemService.addItem(player, 182201308, 1); // Lodas's Leaf
+					};
+
 					return sendQuestStartDialog(env);
+				}
 			}
 			else if (qs != null && qs.getStatus() == QuestStatus.START) {
-				if (env.getDialog() == QuestDialog.START_DIALOG)
+				if (env.getDialog() == QuestDialog.START_DIALOG) {
 					return sendQuestDialog(env, 2375);
+				}
 				else if (env.getDialogId() == 1009) {
 					qs.setQuestVar(2);
 					updateQuestStatus(env);
@@ -70,18 +84,33 @@ public class _1322ALeafFromLodas extends QuestHandler {
 					return sendQuestEndDialog(env);
 			}
 			else if (qs != null && qs.getStatus() == QuestStatus.REWARD) {
-				if (env.getDialog() == QuestDialog.USE_OBJECT)
+				if (env.getDialog() == QuestDialog.USE_OBJECT) {
+					player.getInventory().decreaseByItemId(182201374, 1); // Daminu's Fruit
+
 					return sendQuestDialog(env, 2375);
+				}
+
 				return sendQuestEndDialog(env);
 			}
 		}
-		else if (targetId == 730008) { // Daminu
+		else if (targetId == 730008) // Daminu
+		{
 			if (qs != null && qs.getStatus() == QuestStatus.START && qs.getQuestVarById(0) == 0) {
-				if (env.getDialog() == QuestDialog.START_DIALOG)
+				QuestDialog oxi = env.getDialog();
+
+				if (env.getDialog() == QuestDialog.START_DIALOG) {
 					return sendQuestDialog(env, 1352);
-				else if (env.getDialog() == QuestDialog.STEP_TO_1 || env.getDialog() == QuestDialog.STEP_TO_2) {
+				}
+				else if (env.getDialog() == QuestDialog.SELECT_ACTION_1353) {
+					player.getInventory().decreaseByItemId(182201308, 1); // // Lodas's Leaf
+				}
+				else if (env.getDialog() == QuestDialog.STEP_TO_1) {
+					ItemService.addItem(player, 182201374, 1); // Daminu's Fruit
+
 					qs.setStatus(QuestStatus.REWARD);
+
 					updateQuestStatus(env);
+
 					PacketSendUtility.sendPacket(player, new SM_DIALOG_WINDOW(env.getVisibleObject().getObjectId(), 10));
 					return true;
 				}
@@ -89,6 +118,7 @@ public class _1322ALeafFromLodas extends QuestHandler {
 					return sendQuestStartDialog(env);
 			}
 		}
+
 		return false;
 	}
 }
