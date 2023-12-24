@@ -81,6 +81,7 @@ public class _1604ToCatchASpy extends QuestHandler {
 	public boolean onAttackEvent(QuestEnv env) {
 		Player player = env.getPlayer();
 		QuestState qs = player.getQuestStateList().getQuestState(questId);
+
 		if (qs == null || qs.getStatus() != QuestStatus.START || qs.getQuestVars().getQuestVars() != 0) {
 			return false;
 		}
@@ -93,13 +94,23 @@ public class _1604ToCatchASpy extends QuestHandler {
 			return false;
 		}
 
-		if (MathUtil.getDistance(env.getVisibleObject(), 717.78f, 623.50f, 130) < 8) {
-			((Npc) env.getVisibleObject()).getController().onDie(player);
-			qs.setQuestVarById(0, qs.getQuestVarById(0) + 1);
-			qs.setStatus(QuestStatus.REWARD);
-			updateQuestStatus(env);
+		int distanceFromPointToKillNpc = 52;
 
+		// Increase range, so we can update quest before elyos guards kill the Snoop.
+		if (MathUtil.getDistance(env.getVisibleObject(), 717.78f, 623.50f, 130) <= distanceFromPointToKillNpc) {
+			Npc target = (Npc) env.getVisibleObject();
+
+			int maxHp = target.getLifeStats().getMaxHp();
+			int half = (int)(maxHp * 0.5);
+
+			if (target.getLifeStats().getCurrentHp() <= half) {
+				((Npc) env.getVisibleObject()).getController().onDie(player);
+				qs.setQuestVarById(0, qs.getQuestVarById(0) + 1);
+				qs.setStatus(QuestStatus.REWARD);
+				updateQuestStatus(env);
+			}
 		}
+		
 		return false;
 	}
 }
