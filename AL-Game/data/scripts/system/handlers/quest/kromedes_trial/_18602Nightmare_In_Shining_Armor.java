@@ -60,6 +60,7 @@ public class _18602Nightmare_In_Shining_Armor extends QuestHandler {
 				int var = qs.getQuestVarById(0);
 				if (var > 0) {
 					changeQuestStep(env, var, 0, false);
+					updateQuestStatus(env);
 					return true;
 				}
 			}
