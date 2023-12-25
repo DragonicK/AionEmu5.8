@@ -9,6 +9,7 @@ import com.aionemu.gameserver.questEngine.model.QuestEnv;
 import com.aionemu.gameserver.questEngine.model.QuestState;
 import com.aionemu.gameserver.questEngine.model.QuestStatus;
 import com.aionemu.gameserver.utils.PacketSendUtility;
+import com.sun.org.apache.bcel.internal.generic.BREAKPOINT;
 
 /**
  * @author Balthazar
@@ -29,6 +30,7 @@ public class _1648UndeadWarAlert extends QuestHandler {
 		qe.registerQuestNpc(204612).addOnTalkEvent(questId);
 		qe.registerQuestNpc(204500).addOnTalkEvent(questId);
 		qe.registerQuestNpc(204590).addOnTalkEvent(questId);
+		qe.registerQuestNpc(204590).addOnTalkEndEvent(questId);
 	}
 
 	@Override
@@ -69,6 +71,7 @@ public class _1648UndeadWarAlert extends QuestHandler {
 							return true;
 						}
 					}
+					break;
 				}
 				case 204500: {
 					switch (env.getDialog()) {
@@ -79,13 +82,30 @@ public class _1648UndeadWarAlert extends QuestHandler {
 						}
 						case STEP_TO_2: {
 							qs.setQuestVarById(0, qs.getQuestVarById(0) + 1);
-							qs.setStatus(QuestStatus.REWARD);
 							updateQuestStatus(env);
 							PacketSendUtility.sendPacket(player, new SM_DIALOG_WINDOW(env.getVisibleObject().getObjectId(), 0));
 							return true;
 						}
 					}
+					break;
 				}
+				case 204590: {
+					QuestDialog dialog = env.getDialog();
+
+					if (dialog == QuestDialog.START_DIALOG) {
+						return sendQuestDialog(env, 1694);
+					}
+					else if (dialog == QuestDialog.STEP_TO_2) {
+						return sendQuestDialog(env, 2375);
+					}
+					else if (dialog == QuestDialog.SELECT_REWARD) {
+						qs.setStatus(QuestStatus.REWARD);
+   						updateQuestStatus(env);
+
+						return sendQuestDialog(env, 5);
+					}
+				}
+				break;
 			}
 		}
 		else if (qs.getStatus() == QuestStatus.REWARD) {
