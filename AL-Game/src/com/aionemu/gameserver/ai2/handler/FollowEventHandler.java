@@ -66,13 +66,8 @@ public class FollowEventHandler {
 		if (object == null) {
 			return false;
 		}
-		if (object.isInInstance()) {
-			return MathUtil.isIn3dRange(ai.getOwner(), object, 9999);
-		} else if (ai.getOwner().getLifeStats().getHpPercentage() < 100) {
-			return MathUtil.isIn3dRange(ai.getOwner(), object, 30);
-		} else {
-			return MathUtil.isIn3dRange(ai.getOwner(), object, 15);
-		}
+
+		return MathUtil.isIn3dRange(ai.getOwner(), object, 2);
 	}
 
 	/**
