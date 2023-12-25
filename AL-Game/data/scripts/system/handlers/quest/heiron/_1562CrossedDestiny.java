@@ -20,11 +20,9 @@ import com.aionemu.gameserver.model.gameobjects.Npc;
 import com.aionemu.gameserver.model.gameobjects.Item;
 import com.aionemu.gameserver.model.gameobjects.player.Player;
 import com.aionemu.gameserver.questEngine.handlers.QuestHandler;
-import com.aionemu.gameserver.questEngine.model.QuestDialog;
-import com.aionemu.gameserver.questEngine.model.QuestEnv;
-import com.aionemu.gameserver.questEngine.model.QuestState;
-import com.aionemu.gameserver.questEngine.model.QuestStatus;
+import com.aionemu.gameserver.questEngine.model.*;
 import com.aionemu.gameserver.services.QuestService;
+import com.aionemu.gameserver.services.item.ItemService;
 
 /**
  * Find Litonos (204616) (bring him the Berone's Necklace (182201780)). Talk with Litonos. Take Litonos to Berone
@@ -47,6 +45,8 @@ public class _1562CrossedDestiny extends QuestHandler {
 		qe.registerOnLogOut(questId);
 		qe.registerQuestNpc(204589).addOnTalkEvent(questId);
 		qe.registerQuestNpc(204616).addOnTalkEvent(questId);
+		qe.registerQuestNpc(700193).addOnTalkEvent(questId); // Tombstone of Litonos
+		qe.registerQuestItem(182201780, questId);
 		qe.registerAddOnReachTargetEvent(questId);
 		qe.registerAddOnLostTargetEvent(questId);
 	}
@@ -100,17 +100,45 @@ public class _1562CrossedDestiny extends QuestHandler {
 		}
 		return false;
 	}
-	
+
+	@Override
+	public boolean onCanAct(QuestEnv env, QuestActionType questEventType, Object... objects) {
+		Player player = env.getPlayer();
+
+		if (player.getInventory().getItemCountByItemId(182201780) == 1) {
+			QuestState qs = player.getQuestStateList().getQuestState(questId);
+
+			// Dot not duplicate npcs.
+			if (qs.getQuestVarById(1) != 1) {
+				qs.setQuestVarById(1, 1);
+
+				float x = (float)911.2503;
+				float y = (float)1726.6733;
+				float z = (float)116.81383;
+				byte heading = 24;
+
+				QuestService.addNewSpawn(player.getWorldId(), 0, 204616, x, y, z, heading, 15); // Litonos
+			}
+		}
+
+		return false;
+	}
+
 	@Override
 	public boolean onLogOutEvent(QuestEnv env) {
 		Player player = env.getPlayer();
 		QuestState qs = player.getQuestStateList().getQuestState(questId);
 		if (qs != null && qs.getStatus() == QuestStatus.START) {
 			int var = qs.getQuestVarById(0);
+
 			if (var == 2) {
 				changeQuestStep(env, 2, 1, false);
 			}
+
+			// Can summon Litonos again.
+			qs.setQuestVarById(1, 0);
 		}
+
 		return false;
 	}
 
@@ -121,6 +149,14 @@ public class _1562CrossedDestiny extends QuestHandler {
 
 	@Override
 	public boolean onNpcLostTargetEvent(QuestEnv env) {
+		Player player = env.getPlayer();
+		QuestState qs = player.getQuestStateList().getQuestState(questId);
+
+		// Can summon Litonos again.
+		if (qs != null) {
+			qs.setQuestVarById(1, 0);
+		}
+
 		return defaultFollowEndEvent(env, 2, 1, false); // 1
 	}
 }
