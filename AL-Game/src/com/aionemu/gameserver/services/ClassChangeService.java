@@ -183,15 +183,19 @@ public class ClassChangeService {
 		QuestState qs = player.getQuestStateList().getQuestState(questId);
 		Calendar calendar = Calendar.getInstance();
 		Timestamp timeStamp = new Timestamp(calendar.getTime().getTime());
+
 		if (qs == null) {
 			player.getQuestStateList().addQuest(questId, new QuestState(questId, QuestStatus.COMPLETE, 0, 1, null, 0, timeStamp));
-			PacketSendUtility.sendPacket(player, new SM_QUEST_ACTION(questId, QuestStatus.COMPLETE.value(), 0));
-		} else {
-			qs.setStatus(QuestStatus.COMPLETE);
-			qs.setCompleteCount(qs.getCompleteCount() + 1);
-            player.getCommonData().setExp(126150, true); //exp give from quest 1006, 2008 
-			PacketSendUtility.sendPacket(player, new SM_QUEST_ACTION(questId, qs.getStatus(), qs.getQuestVars().getQuestVars()));
 		}
+
+		qs = player.getQuestStateList().getQuestState(questId);
+
+		qs.setStatus(QuestStatus.COMPLETE);
+		qs.setCompleteCount(qs.getCompleteCount() + 1);
+
+		player.getCommonData().setExp(126150, true); //exp give from quest 1006, 2008
+
+		PacketSendUtility.sendPacket(player, new SM_QUEST_ACTION(questId, qs.getStatus(), qs.getQuestVars().getQuestVars()));
 	}
 
 	public static void setClass(Player player, PlayerClass playerClass) {
