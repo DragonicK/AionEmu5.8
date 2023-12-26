@@ -80,9 +80,9 @@ public class _2284Escaping_Asmodae extends QuestHandler
 				}
 			}
 		} else if (qs.getStatus() == QuestStatus.REWARD) {
-			if (targetId == 798034) { 
-			  if (env.getDialogId() == QuestDialog.SELECT_NO_REWARD.id()) {
-					return sendQuestDialog(env, 10002);
+			if (targetId == 798034) {
+				if (env.getDialogId() == QuestDialog.SELECT_NO_REWARD.id()) {
+					return sendQuestEndDialog(env);
 				}
 				else {
 					return sendQuestEndDialog(env);
