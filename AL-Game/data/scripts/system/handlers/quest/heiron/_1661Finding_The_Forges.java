@@ -14,11 +14,13 @@ package quest.heiron;
 
 import com.aionemu.gameserver.model.gameobjects.Npc;
 import com.aionemu.gameserver.model.gameobjects.player.Player;
+import com.aionemu.gameserver.network.aion.serverpackets.SM_QUEST_ACTION;
 import com.aionemu.gameserver.questEngine.handlers.QuestHandler;
 import com.aionemu.gameserver.questEngine.model.QuestDialog;
 import com.aionemu.gameserver.questEngine.model.QuestEnv;
 import com.aionemu.gameserver.questEngine.model.QuestState;
 import com.aionemu.gameserver.questEngine.model.QuestStatus;
+import com.aionemu.gameserver.utils.PacketSendUtility;
 import com.aionemu.gameserver.world.zone.ZoneName;
 
 /****/
@@ -28,7 +30,15 @@ import com.aionemu.gameserver.world.zone.ZoneName;
 public class _1661Finding_The_Forges extends QuestHandler
 {
 	private final static int questId = 1661;
-	
+
+	private final static String WeaponZoneName = "LF3_SENSORY_AREA_Q1661_A_210040000";
+	private final static String OdiumZoneName = "LF3_SENSORY_AREA_Q1661_B_210040000";
+	private final static String ArmorZoneName = "LF3_SENSORY_AREA_Q1661_C_210040000";
+
+	private final static int WeaponZoneVar = 16;
+	private final static int OdiumZoneVar = 32;
+	private final static int ArmorZoneVar = 64;
+
 	public _1661Finding_The_Forges() {
 		super(questId);
 	}
@@ -74,34 +84,64 @@ public class _1661Finding_The_Forges extends QuestHandler
 	@Override
 	public boolean onEnterZoneEvent(QuestEnv env, ZoneName zoneName) {
 		Player player = env.getPlayer();
+
 		if (player == null)
 			return false;
+
 		QuestState qs = player.getQuestStateList().getQuestState(questId);
-		if (qs != null && qs.getStatus() == QuestStatus.START) {
-  		    int var = qs.getQuestVarById(0);
-			//int var1 = qs.getQuestVarById(1);
-			//int var2 = qs.getQuestVarById(2);
-			//int var3 = qs.getQuestVarById(3);
-			//if (var == 1) {
-			//if (var == 0) {
-				if (zoneName == ZoneName.get("LF3_SENSORY_AREA_Q1661_A_210040000")) {
-					if (var == 0 ) { //&& var1 == 0
-						changeQuestStep(env, 0, 16, false);
-						return true;
-					}
-				} else if (zoneName == ZoneName.get("LF3_SENSORY_AREA_Q1661_B_210040000")) {
-					if (var == 16 ) { //&& var1 == 0
-						changeQuestStep(env, 16, 48, false);
-						return true;
-					}
-				} else if (zoneName == ZoneName.get("LF3_SENSORY_AREA_Q1661_C_210040000")) {
-					if (var == 48 ) { //&& var1 == 0
-						changeQuestStep(env, 48, 48, true);
-						return true;
+
+ 		if (qs != null && qs.getStatus() == QuestStatus.START) {
+			int var = qs.getQuestVarById(0);
+
+			if (IsInWeaponZone(zoneName)) {
+				if ((var & WeaponZoneVar) == 0) {
+					var |= WeaponZoneVar;
+
+					qs.setQuestVarById(0, var);
+					updateQuestStatus(env);
+				}
+			}
+			else if (IsInOdiumZone(zoneName)) {
+				if ((var & OdiumZoneVar) == 0) {
+					var |= OdiumZoneVar;
+
+					qs.setQuestVarById(0, var);
+					updateQuestStatus(env);
+				}
+			}
+			else if (IsInArmorZone(zoneName)) {
+				if ((var & ArmorZoneVar) == 0) {
+					var |= ArmorZoneVar;
+
+					qs.setQuestVarById(0, var);
+					updateQuestStatus(env);
+				}
+			}
+
+			if ((var & WeaponZoneVar) == WeaponZoneVar) {
+				if ((var & OdiumZoneVar) == OdiumZoneVar) {
+					if ((var & ArmorZoneVar) == ArmorZoneVar) {
+						qs.setStatus(QuestStatus.REWARD);
+						updateQuestStatus(env);
 					}
 				}
-			//}
+			}
+
+			return true;
 		}
+
 		return false;
+	}
+
+	private boolean IsInWeaponZone(ZoneName zoneName) {
+		return zoneName == ZoneName.get(WeaponZoneName);
+	}
+
+	private boolean IsInOdiumZone(ZoneName zoneName) {
+		return zoneName == ZoneName.get(OdiumZoneName);
+	}
+
+	private boolean IsInArmorZone(ZoneName zoneName) {
+		return zoneName == ZoneName.get(ArmorZoneName);
 	}
 }
