@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:70efbcb3b8e1eb5a95d5df9477a555c55bde2200b2f5edf406451361f420b53d
-size 331
+<?xml version="1.0" encoding="UTF-8"?>
+<quest_scripts xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="quest_script_data.xsd">
+<!--
+    Quest Norsvold 5.5
+	Make By (Encom)
+ -->
+    <!-- For Luck (Asmodians Only) -->
+	<fountain_rewards id="25667" start_npc_ids="805753"/>
+</quest_scripts>

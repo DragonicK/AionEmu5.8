@@ -1,3 +1,11 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:f8552319ed45f5f8a418ecd88095104a48681658e3e0722224a75334d4a77d03
-size 374
+<?xml version="1.0" encoding="utf-8"?>
+<zones>
+	<zone mapid="900160000" name="IDKAMAR_SUBZONE_ALL_900160000" area_type="POLYGON" zone_type="SUB">
+		<points bottom="1" top="1001">
+			<point x="100.0000" y="100.0000"/>
+			<point x="2900.0000" y="100.0000"/>
+			<point x="2900.0000" y="2900.0000"/>
+			<point x="100.0000" y="2900.0000"/>
+		</points>
+	</zone>
+</zones>

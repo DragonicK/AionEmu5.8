@@ -1,3 +1,21 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:66c22daa3b3ba0df36a4125f65f41e216299cd427016ff9ccf5195a8150c20c4
-size 771
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Tower Of Eternity
+	Made By (Encom)
+ -->
+<tower_of_eternity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="tower_of_eternity.xsd">
+	<!-- Iluma
+	[Tower Of Eternity] -->
+	<tower_location id="1" world="210100000"/>
+	<tower_location id="2" world="210100000"/>
+	<tower_location id="3" world="210100000"/>
+	<tower_location id="4" world="210100000"/>
+	<tower_location id="5" world="210100000"/>
+	<!-- Norsvold
+	[Tower Of Eternity] -->
+	<tower_location id="6" world="220110000"/>
+	<tower_location id="7" world="220110000"/>
+	<tower_location id="8" world="220110000"/>
+	<tower_location id="9" world="220110000"/>
+	<tower_location id="10" world="220110000"/>
+</tower_of_eternity>

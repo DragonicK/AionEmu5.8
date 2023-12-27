@@ -1,3 +1,18 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:422f3a46361f7f3689a3d79de751ce7218eea74e593a1586252fca1fe75f67eb
-size 690
+<?xml version="1.0" encoding="UTF-8"?>
+<quest_scripts xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="quest_script_data.xsd">
+<!--
+    Quest Idgel Dome 4.7
+	Make By (Encom)
+ -->
+    <!-- QUEST ELYOS -->
+	<!-- [Group] Destroying The Destroyer (Elyos Only) -->
+	<monster_hunt id="18941" start_npc_ids="802383" end_npc_ids="802431">
+		<monster var="0" npc_ids="234190" end_var="1"/>
+	</monster_hunt>
+	
+	<!-- QUEST ASMODIANS -->
+	<!-- [Group] Destroy The Destroyer (Asmodians Only) -->
+	<monster_hunt id="28941" start_npc_ids="802384" end_npc_ids="802433">
+		<monster var="0" npc_ids="234190" end_var="1"/>
+	</monster_hunt>
+</quest_scripts>

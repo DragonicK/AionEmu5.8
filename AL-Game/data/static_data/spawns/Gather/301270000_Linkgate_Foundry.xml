@@ -1,3 +1,13 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:598b144c27cc1d739efb12717308a272bf06b1a12f8022731152ff7ead0d254f
-size 354
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+	バルナ次元研究所
+	Spawn By (Encom)
+ -->
+<spawns>
+    <spawn_map map_id="301270000">
+	    <!-- Aither 400P -->
+        <spawn npc_id="409238" respawn_time="295">
+            <spot x="262.63605" y="257.9927" z="312.59003" h="60"/>
+        </spawn>
+    </spawn_map>
+</spawns>

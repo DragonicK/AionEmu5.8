@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:f5cbb8e916ab0c93ec440f2ec93677cfeef15c1474667af4c8f387c340dbba5c
-size 442
+<?xml version="1.0" encoding="UTF-8"?>
+<quest_scripts xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="quest_script_data.xsd">
+<!--
+    Quest Taloc Hollow 2.0
+	Make By (Encom)
+ -->	
+	<item_collecting id="21461" start_npc_ids="799502" end_npc_ids="799256" action_item_ids="700636"/>
+	<item_collecting id="21464" start_npc_ids="799526" end_npc_ids="799503" action_item_ids="700634"/>
+</quest_scripts>

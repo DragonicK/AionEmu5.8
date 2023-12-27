@@ -1,3 +1,20 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:6c5d63e1ac3851d0e1fd2ab3058b13ace1fa052b81fbb1e32e7de51ab04fa7a6
-size 530
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Inggison [Master Server]
+	Spawn By (Encom)
+ -->
+<spawns>
+    <spawn_map map_id="210130000">
+		<nightmare_circus_spawn id="5">
+			<nightmare_circus_type nstate="OPEN">
+			    <!-- Adana
+				<Dream Faerie> -->
+				<spawn npc_id="831545">
+				    <spot x="1333.3152" y="283.2651" z="589.42145" h="96"/>
+				</spawn>
+			</nightmare_circus_type>
+			<nightmare_circus_type nstate="CLOSED">
+			</nightmare_circus_type>
+		</nightmare_circus_spawn>
+    </spawn_map>
+</spawns>

@@ -1,3 +1,21 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:f7531708dc075603cd83d5e4023b5a3089e61409fd711e46edc7d2b48a3f8cc2
-size 531
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Idian Depths 4.8
+	엔샤르 4.8
+	Spawn By (Encom)
+ -->
+<spawns>
+    <spawn_map map_id="220080000">
+		<idian_depths_spawn id="2">
+			<idian_depths_type istate="OPEN">
+				<!-- Idian Depths Corridor
+				<The Blood Grains> -->
+				<spawn npc_id="731632">
+				    <spot x="1764.2205" y="557.8873" z="207.97919" h="95"/>
+				</spawn>
+			</idian_depths_type>
+			<idian_depths_type istate="CLOSED">
+			</idian_depths_type>
+		</idian_depths_spawn>
+    </spawn_map>
+</spawns>

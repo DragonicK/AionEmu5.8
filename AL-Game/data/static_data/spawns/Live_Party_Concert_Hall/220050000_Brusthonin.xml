@@ -1,3 +1,21 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:bfeac59b83a306655254c644bdb8ecfcfbaf8b3f450f2122c9bdb67f6bbbacf8
-size 597
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	ブルストホーニン
+	ライブ パーティー コンサートホール 4.3
+	Spawn By (Encom)
+ -->
+<spawns>
+    <spawn_map map_id="220050000">
+		<!-- [ライブ パーティー コンサートホール] -->
+		<iu_spawn id="15">
+			<iu_type iustate="OPEN">
+				<!-- ライブ パーティー コンサートホールの入口 -->
+				<spawn npc_id="831592">
+				    <spot x="1351.4885" y="1965.9873" z="42.5" h="0"/>
+				</spawn>
+			</iu_type>
+			<iu_type iustate="CLOSED">
+			</iu_type>
+		</iu_spawn>
+    </spawn_map>
+</spawns>

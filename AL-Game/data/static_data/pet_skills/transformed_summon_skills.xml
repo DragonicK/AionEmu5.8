@@ -1,3 +1,11 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:66ad6b21c20bdb122022e240c9c7d2930b3665b30f4ad383773833192617f2d1
-size 432
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Summon Skill Template
+	Made By (Encom)
+ -->
+<pet_skill_templates xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="pet_skills.xsd">
+	<pet_skill skill_id="18962" pet_id="799500"/>
+	<pet_skill skill_id="18963" pet_id="799500"/>
+	<pet_skill skill_id="18964" pet_id="799501"/>
+	<pet_skill skill_id="18965" pet_id="799501"/>
+</pet_skill_templates>

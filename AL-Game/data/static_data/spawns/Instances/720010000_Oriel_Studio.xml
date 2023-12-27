@@ -1,3 +1,17 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:54ddd55f55fe8c25f2562310ed903eb940d7ad75db0f6dd77c09c333809dfde7
-size 451
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	엘리안 Studio
+	Spawn By (Encom)
+ -->
+<spawns>
+	<spawn_map map_id="720010000">
+		<!-- Studio Exit (Object Normal lvl:3) -->
+		<spawn npc_id="830229">
+			<spot x="354.440" y="298.922" z="222.285" entity_id="7"/>
+		</spawn>
+		<!-- Studio Exit (Object Normal lvl:3) -->
+		<spawn npc_id="830228">
+			<spot x="357.502" y="284.329" z="222.285" entity_id="8"/>
+		</spawn>
+	</spawn_map>
+</spawns>

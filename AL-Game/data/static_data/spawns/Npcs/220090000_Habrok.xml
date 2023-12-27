@@ -1,3 +1,14 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:95c884b5d45e8593ed672fd8b5b4e1c9cd9b380849db0622377565c4cb9d441e
-size 313
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	라그나툰호 4.8
+	Spawn By (Encom)
+ -->
+<spawns>
+	<spawn_map map_id="220090000">
+		<!-- Proff
+		<Teleporter> -->
+		<spawn npc_id="804963" respawn_time="295">
+			<spot x="253.45369" y="193.64113" z="503.51117" h="90"/>
+		</spawn>
+	</spawn_map>
+</spawns>

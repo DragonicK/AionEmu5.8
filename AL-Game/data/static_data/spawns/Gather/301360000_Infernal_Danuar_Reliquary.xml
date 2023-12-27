@@ -1,3 +1,13 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:6c83fef9ff616904e4c9eaff3ba55ad3670eefc7deb8bf58c2b284f5a269f2e5
-size 358
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+	용사의 루나디움
+	Spawn By (Encom)
+ -->
+<spawns>
+    <spawn_map map_id="301360000">
+	    <!-- Large Aither 400P -->
+        <spawn npc_id="409239" respawn_time="295">
+            <spot x="254.58882" y="270.2294" z="241.89555" h="93"/>
+        </spawn>
+    </spawn_map>
+</spawns>

@@ -1,3 +1,11 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:c781fa0b88a38c5f07417bbc92fec7d1b43c5ee0d09a0683009c617fbeacb155
-size 438
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Abyss Landing Location 4.9.1
+	Made By (Encom)
+ -->
+<landing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="landing_locations.xsd">
+    <!-- Redemption Landing -->
+	<landing_location id="1" name="Redemption Landing" race="ELYOS"/>
+    <!-- Harbinger's Landing -->
+	<landing_location id="2" name="Harbinger's Landing" race="ASMODIANS"/>
+</landing>

@@ -1,3 +1,13 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:5f03c708db93c90c23fea4227cf5fe8f7a8e6c8c1a98f6685386fa546429bc2e
-size 354
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+	ルナディウム
+	Spawn By (Encom)
+ -->
+<spawns>
+    <spawn_map map_id="301110000">
+	    <!-- Large Aither 400P -->
+        <spawn npc_id="409239" respawn_time="295">
+            <spot x="254.58882" y="270.2294" z="241.89555" h="93"/>
+        </spawn>
+    </spawn_map>
+</spawns>

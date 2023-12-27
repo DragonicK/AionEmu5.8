@@ -1,3 +1,20 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:564d97692eed54dbb09ee6bbbbc64e3c0d5799b06038a3d689bd91b0d6b55b9f
-size 534
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	루키부키 서커스단 4.3
+	Spawn By (Encom)
+ -->
+<spawns>
+    <spawn_map map_id="220020000">
+		<nightmare_circus_spawn id="9">
+			<nightmare_circus_type nstate="OPEN">
+			    <!-- Adiva
+				<Dream Faerie> -->
+				<spawn npc_id="831543">
+				    <spot x="303.8688" y="2274.871" z="448.64484" h="33"/>
+				</spawn>
+			</nightmare_circus_type>
+			<nightmare_circus_type nstate="CLOSED">
+			</nightmare_circus_type>
+		</nightmare_circus_spawn>
+    </spawn_map>
+</spawns>

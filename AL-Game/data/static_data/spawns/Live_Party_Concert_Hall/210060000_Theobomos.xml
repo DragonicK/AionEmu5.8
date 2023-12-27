@@ -1,3 +1,21 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:71c8cf0b873d16a122c53e647da9b81bb962ffdebd2fbfb14467eb1a860ec57a
-size 591
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	テオボモス
+	ライブ パーティー コンサートホール 4.3
+	Spawn By (Encom)
+ -->
+<spawns>
+    <spawn_map map_id="210060000">
+		<!-- [ライブ パーティー コンサートホール] -->
+		<iu_spawn id="7">
+			<iu_type iustate="OPEN">
+				<!-- ライブ パーティー コンサートホールの入口 -->
+				<spawn npc_id="831592">
+				    <spot x="2275.347" y="2234.8733" z="61.457108" h="0"/>
+				</spawn>
+			</iu_type>
+			<iu_type iustate="CLOSED">
+			</iu_type>
+		</iu_spawn>
+    </spawn_map>
+</spawns>

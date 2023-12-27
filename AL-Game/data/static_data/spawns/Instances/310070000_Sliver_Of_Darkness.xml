@@ -1,3 +1,17 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:b142f85b5d63bb5b407208f997faeb57560a38edfd4cad93e81fadcba9f446d9
-size 381
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	암흑의 파편
+	Spawn By (Encom)
+ -->
+<spawns>
+	<spawn_map map_id="310070000">
+		<!-- Icaronix -->
+		<spawn npc_id="205110">
+			<spot x="338" y="103" z="1191"/>
+		</spawn>
+		<!-- Icaronixs Box -->
+		<spawn npc_id="700240">
+			<spot x="196.118" y="263.438" z="1374.08" entity_id="7"/>
+		</spawn>
+	</spawn_map>
+</spawns>

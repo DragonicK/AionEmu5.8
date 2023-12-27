@@ -1,3 +1,13 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:638e35aba765137a28ed485d821fc293997d0dfb2f5c17b9566c27534948736d
-size 362
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+	용사의 룬의 보호탑
+	Spawn By (Encom)
+ -->
+<spawns>
+    <spawn_map map_id="301370000">
+	    <!-- Large Aither 400P -->
+        <spawn npc_id="409239" respawn_time="295">
+            <spot x="270.1844" y="258.60712" z="455.24808" h="65"/>
+        </spawn>
+    </spawn_map>
+</spawns>

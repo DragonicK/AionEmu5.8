@@ -1,3 +1,32 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:61fe1c54c5906c48a458c8a6b5e186f44beda7ff01ea7f25944daff9866d3c47
-size 941
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Instance Rift 5.0
+	Norsvold
+	Spawn By (Encom)
+ -->
+<spawns>
+    <spawn_map map_id="220110000">
+		<!-- Adma's Fall 5.0 -->
+		<instance_rift_spawn id="8">
+			<instance_rift_type estate="OPEN">
+				<!-- Adma's Fall -->
+				<spawn npc_id="806203">
+				    <spot x="1602.2986" y="1838.957" z="194.48982" entity_id="2877"/>
+				</spawn>
+			</instance_rift_type>
+			<instance_rift_type estate="CLOSED">
+			</instance_rift_type>
+		</instance_rift_spawn>
+		<!-- Theobomos Test Chamber 5.0 -->
+		<instance_rift_spawn id="9">
+			<instance_rift_type estate="OPEN">
+				<!-- Theobomos Test Chamber -->
+				<spawn npc_id="806204" respawn_time="295">
+				    <spot x="1817.9587" y="2207.9387" z="213.06427" entity_id="2878"/>
+				</spawn>
+			</instance_rift_type>
+			<instance_rift_type estate="CLOSED">
+			</instance_rift_type>
+		</instance_rift_spawn>
+    </spawn_map>
+</spawns>

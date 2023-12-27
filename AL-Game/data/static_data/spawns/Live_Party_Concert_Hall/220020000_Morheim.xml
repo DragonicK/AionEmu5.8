@@ -1,3 +1,21 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:daf199c0c39eea3b1dc11d6436177631713bf7cd57dd48a3e21ee2ef1c7f429b
-size 593
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	モルヘイム
+	ライブ パーティー コンサートホール 4.3
+	Spawn By (Encom)
+ -->
+<spawns>
+    <spawn_map map_id="220020000">
+		<!-- [ライブ パーティー コンサートホール] -->
+		<iu_spawn id="12">
+			<iu_type iustate="OPEN">
+				<!-- ライブ パーティー コンサートホールの入口 -->
+				<spawn npc_id="831592">
+				    <spot x="279.79282" y="2327.4773" z="443.31723" h="0"/>
+				</spawn>
+			</iu_type>
+			<iu_type iustate="CLOSED">
+			</iu_type>
+		</iu_spawn>
+    </spawn_map>
+</spawns>

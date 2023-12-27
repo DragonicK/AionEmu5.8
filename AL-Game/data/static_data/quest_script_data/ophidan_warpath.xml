@@ -1,3 +1,11 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:56f964c171fcb208be114e035df007013fa26f60e0913c35d2013d32ebf99ac7
-size 598
+<?xml version="1.0" encoding="UTF-8"?>
+<quest_scripts xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="quest_script_data.xsd">
+<!--
+    Quest Ophidan Warpath 5.1
+	Make By (Encom)
+ -->
+	<!-- [Instance/Group] Combat On The Ophidan Warpath (Elyos Only) -->
+	<kill_in_world id="17506" start_npc_ids="806267" end_npc_ids="806266" worlds="301670000" amount="15"/>
+	<!-- [Instance/Group] Battle On The Ophidan Warpath (Asmodians Only) -->
+	<kill_in_world id="27506" start_npc_ids="806269" end_npc_ids="806268" worlds="301670000" amount="15"/>
+</quest_scripts>

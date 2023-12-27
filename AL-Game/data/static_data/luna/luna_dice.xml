@@ -1,3 +1,9 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:69cfeb1158bdf239ad5a2cfd2e0ca01d9ca76bcea1866235de69b40319e405e8
-size 305
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+	Daishunerk's Game Of Fate
+ -->
+<luna_dice xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="luna_dice.xsd">
+    <table id="1">
+        <reward item_id="165060002" count="1"/>
+    </table>
+</luna_dice>

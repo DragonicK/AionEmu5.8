@@ -1,3 +1,11 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:6d4572c884f2882baa8214933dda6df45f64828602e029d6761aa923488d7e65
-size 458
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<zones>
+    <zone mapid="320040000" name="NIDALBER_320040000" area_type="POLYGON" zone_type="SUB" priority="16" flags="2">
+        <points bottom="70.0" top="370.0">
+            <point x="135.98" y="321.32"/>
+            <point x="208.58311" y="88.76044"/>
+            <point x="365.79285" y="138.13394"/>
+            <point x="291.7307" y="369.13492"/>
+        </points>
+    </zone>
+</zones>

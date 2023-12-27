@@ -1,3 +1,19 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:e8dbab7916192c1c697a058430272775479fd224a7ab00cf6309d175f19c0143
-size 425
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	[S.V.S Transidium Annex]
+	벨로스 영지 4.7
+	Spawn By (Encom)
+ -->
+<spawns>
+    <spawn_map map_id="400020000">
+		<svs_spawn id="5">
+			<svs_type pstate="SVS">
+			</svs_type>
+			<svs_type pstate="PEACE">
+				<spawn npc_id="702548">
+					<spot x="1024.12" y="1078.747" z="1530.2688" h="90"/>
+				</spawn>
+			</svs_type>
+		</svs_spawn>
+    </spawn_map>
+</spawns>

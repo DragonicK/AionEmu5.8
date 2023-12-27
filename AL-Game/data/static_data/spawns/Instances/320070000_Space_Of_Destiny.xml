@@ -1,3 +1,13 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:dce8f89a01507873554e5d84321ad18ecba5e7ba84fb166344c188da6092aad3
-size 269
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	운명의 공간
+	Spawn By (Encom)
+ -->
+<spawns>
+	<spawn_map map_id="320070000">
+		<!-- Skuld -->
+		<spawn npc_id="204264">
+			<spot x="245.815" y="248.099" z="125.837" h="51"/>
+		</spawn>
+	</spawn_map>
+</spawns>

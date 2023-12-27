@@ -1,3 +1,20 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:e2e823de54b9d0594e7e650a00fa463aadf511b7cd960357b08e08467fbadb82
-size 531
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	루키부키 서커스단 4.3
+	Spawn By (Encom)
+ -->
+<spawns>
+    <spawn_map map_id="210060000">
+		<nightmare_circus_spawn id="6">
+			<nightmare_circus_type nstate="OPEN">
+			    <!-- Arari
+				<Dream Faerie> -->
+				<spawn npc_id="831546">
+				    <spot x="2232.1497" y="2282.3975" z="50.0" h="91"/>
+				</spawn>
+			</nightmare_circus_type>
+			<nightmare_circus_type nstate="CLOSED">
+			</nightmare_circus_type>
+		</nightmare_circus_spawn>
+    </spawn_map>
+</spawns>

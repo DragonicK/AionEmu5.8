@@ -1,3 +1,13 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:9c17482936ed78e7e8bd03979dced8fe1edf337df4f4aad581bd8c7090b4fc82
-size 307
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Vortex 3.9
+	Made By (Encom)
+ -->
+<spawns>
+	<spawn_map map_id="110070000">
+		<!-- Dimensional Vortex -->
+		<spawn npc_id="831073" handler="RIFT">
+			<spot x="452.3964" y="232.4252" z="128.2140" anchor="KAISINEL_AM"/>
+		</spawn>
+	</spawn_map>
+</spawns>
