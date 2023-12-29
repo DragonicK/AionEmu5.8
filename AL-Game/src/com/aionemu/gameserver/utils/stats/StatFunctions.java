@@ -598,7 +598,7 @@ public class StatFunctions {
 	}
 
 	public static int calculateMagicalSkillDamage(Creature speller, Creature target, int baseDamages, int bonus,
-			SkillElement element, boolean useMagicBoost, boolean useKnowledge, boolean noReduce, int pvpDamage) {
+												  SkillElement element, boolean useMagicBoost, boolean useKnowledge, boolean noReduce, int pvpDamage) {
 		CreatureGameStats<?> sgs = speller.getGameStats();
 		CreatureGameStats<?> tgs = target.getGameStats();
 		int magicBoost = useMagicBoost ? sgs.getMBoost().getCurrent() : 0;
@@ -639,6 +639,11 @@ public class StatFunctions {
 
 		if (damages <= 0) {
 			damages = 1;
+		}
+
+		// TEMPORARY * SecretMunitionsFactoryInstance * TEMPORARY
+		if (noReduce) {
+			damages = baseDamages;
 		}
 
 		if (target instanceof Npc) {

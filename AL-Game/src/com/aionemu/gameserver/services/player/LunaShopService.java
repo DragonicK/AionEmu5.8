@@ -457,7 +457,7 @@ public class LunaShopService {
 				InstanceService.registerPlayerWithInstance(secretMunitionsFactory, player);
 				TeleportService2.teleportTo(player, 301640000, secretMunitionsFactory.getInstanceId(), 400.3279f,
 						290.5061f, 198.64015f, (byte) 60);
-				player.setLunaAccount(player.getLunaAccount() - 59);
+				player.setLunaAccount(player.getLunaAccount() - 20);
 				PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(0));
 				PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 1, 47));
 				PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP(0, 0));

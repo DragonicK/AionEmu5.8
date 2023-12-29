@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+	Npc Walker
+	Made By (Encom)
+ -->
+<npc_walker xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	<walker_template route_id="FirstPartSecretMunitionsFactory" pool="1" reversed="true">
+		<routestep step="1" x="375.64505" y="281.57565" z="198.22144"/>
+ 		<routestep step="2" x="368.90613" y="275.91446" z="198.11536"/>
+		<routestep step="3" x="361.59216" y="270.37033" z="197.71367"/>
+		<routestep step="4" x="346.13962" y="262.67276" z="193.56822"/>
+		<routestep step="5" x="327.05835" y="259.93088" z="192.56317"/>
+		<routestep step="6" x="309.5117" y="258.89822" z="191.01645"/>
+		<routestep step="7" x="290.5117" y="258.89822" z="191.01645"/>
+		<routestep step="8" x="280.5117" y="258.89822" z="191.01645"/>
+		<routestep step="9" x="270.49832" y="258.60883" z="191.01645"/>
+		<routestep step="10" x="265.5117" y="258.89822" z="191.01645"/>
+		<routestep step="11" x="251.5117" y="258.89822" z="191.01645"/>
+		<routestep step="12" x="241.5117" y="258.89822" z="191.01645"/>
+		<routestep step="13" x="230.5117" y="258.89822" z="191.01645"/>
+		<routestep step="14" x="228.8759" y="258.39343" z="191.01645"/>
+		<routestep step="15" x="220.5117" y="258.89822" z="191.01645"/>
+		<routestep step="16" x="214.04623" y="259.59192" z="191.01645"/>
+		<routestep step="17" x="207.41734" y="258.64243" z="191.77963"/>
+		<routestep step="18" x="203.25027" y="258.76254" z="191.8727"/>
+		<routestep step="19" x="193.45119" y="258.63443" z="191.8727"/>
+		<routestep step="20" x="181.10187" y="258.2828" z="191.8727"/>
+		<routestep step="21" x="170.79515" y="258.7578" z="191.89473"/>
+		<routestep step="22" x="167.79515" y="258.7578" z="191.89473" rest_time="7200000"/>
+		<routestep step="23" x="158.79515" y="258.7578" z="191.89473" rest_time="7200000"/>
+	</walker_template>
+	<!-- SECRET MUNITION FACTORY 5.1 -->
+	<walker_template route_id="MunitionFactory1" pool="1">
+		<routestep step="1" z="191.8727" y="236.40619" x="141.67236"/>
+        <routestep step="2" z="192.01207" y="259.4961" x="168.79945" rest_time="7200000"/>
+	</walker_template>
+	<walker_template route_id="MunitionFactory2" pool="1">
+		<routestep step="1" z="191.8727" y="281.68" x="141.2998"/>
+        <routestep step="2" z="192.01207" y="259.4961" x="168.79945" rest_time="7200000"/>
+	</walker_template>
+</npc_walker>

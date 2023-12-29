@@ -17,22 +17,17 @@
 package instance.luna;
 
 import com.aionemu.commons.utils.Rnd;
-import com.aionemu.gameserver.ai2.AIState;
-import com.aionemu.gameserver.ai2.AbstractAI;
-import com.aionemu.gameserver.ai2.NpcAI2;
+import com.aionemu.gameserver.ai2.*;
 import com.aionemu.gameserver.ai2.manager.WalkManager;
 import com.aionemu.gameserver.controllers.effect.PlayerEffectController;
 import com.aionemu.gameserver.instance.handlers.GeneralInstanceHandler;
 import com.aionemu.gameserver.instance.handlers.InstanceID;
 import com.aionemu.gameserver.model.DescriptionId;
-import com.aionemu.gameserver.model.EmotionType;
 import com.aionemu.gameserver.model.Race;
 import com.aionemu.gameserver.model.drop.DropItem;
-import com.aionemu.gameserver.model.gameobjects.Creature;
 import com.aionemu.gameserver.model.gameobjects.Npc;
 import com.aionemu.gameserver.model.gameobjects.StaticDoor;
 import com.aionemu.gameserver.model.gameobjects.player.Player;
-import com.aionemu.gameserver.model.items.storage.Storage;
 import com.aionemu.gameserver.model.instance.InstanceScoreType;
 import com.aionemu.gameserver.model.instance.instancereward.InstanceReward;
 import com.aionemu.gameserver.model.instance.instancereward.SecretMunitionsFactoryReward;
@@ -40,18 +35,18 @@ import com.aionemu.gameserver.model.instance.playerreward.SecretMunitionsFactory
 import com.aionemu.gameserver.network.aion.serverpackets.*;
 import com.aionemu.gameserver.services.drop.DropRegistrationService;
 import com.aionemu.gameserver.services.item.ItemService;
-import com.aionemu.gameserver.services.player.PlayerReviveService;
-import com.aionemu.gameserver.services.teleport.TeleportService2;
 import com.aionemu.gameserver.skillengine.SkillEngine;
+import com.aionemu.gameserver.utils.MathUtil;
 import com.aionemu.gameserver.utils.PacketSendUtility;
 import com.aionemu.gameserver.utils.ThreadPoolManager;
 import com.aionemu.gameserver.world.WorldMapInstance;
 import com.aionemu.gameserver.world.knownlist.Visitor;
-import javolution.util.FastList;
+import ai.instance.secretMunitionsFactory.LunaPatrolAI2;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.List;
+import javolution.util.FastList;
 import java.util.concurrent.Future;
 
 /****/
@@ -59,98 +54,371 @@ import java.util.concurrent.Future;
 /****/
 
 @InstanceID(301640000)
-public class SecretMunitionsFactoryInstance extends GeneralInstanceHandler
-{
+public class SecretMunitionsFactoryInstance extends GeneralInstanceHandler  {
 	private int rank;
 	private long startTime;
 	private Race skillRace;
 	private Future<?> timerPrepare;
-	private Future<?> factoryTaskA1;
-	private Future<?> factoryTaskA2;
-	private Future<?> factoryTaskA3;
-	private Future<?> timerInstance;
 	private int mechaInfantrymanKilled;
 	private boolean isInstanceDestroyed;
 	private Map<Integer, StaticDoor> doors;
 	//Preparation Time.
-	private int prepareTimerSeconds = 60000; //...1Min
+	private final int prepareTimerSeconds = 120000; //...2 Min
 	//Duration Instance Time.
-	private int instanceTimerSeconds = 3600000; //...1Hr
+	private final int instanceTimerSeconds = 3600000; //...1 Hr
 	private SecretMunitionsFactoryReward instanceReward;
-	private final FastList<Future<?>> factoryTask1 = FastList.newInstance();
 	private final FastList<Future<?>> factoryTask2 = FastList.newInstance();
-	
+
+	private final static String FirstPartWalkerId ="FirstPartSecretMunitionsFactory";
+	private Future<?> helperNpcTask;
+	private Future<?> soldierNpcTask;
+	private Future<?> livingBombNpcTask;
+	private Future<?> golemNpcTask;
+	private Npc Roxy;
+	private Npc Mak;
+	private Npc Manad;
+	private Npc Herez;
+	private Npc Joel;
+	private boolean shouldSpawnGolemOnLeft;
+	private boolean shouldSpawnAzureBomb;
+
+	public void onDropRegistered(Npc npc) {
+		Set<DropItem> dropItems = DropRegistrationService.getInstance().getCurrentDropMap().get(npc.getObjectId());
+		int npcId = npc.getNpcId();
+		switch (npcId) {
+			case 245185: //Mechaturerk’s Core.
+				switch (Rnd.get(1, 7)) {
+					case 1:
+						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150000, 2)); //Uncut Crystal.
+						break;
+					case 2:
+						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150001, 2)); //Chipped Crystal.
+						break;
+					case 3:
+						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150002, 2)); //Cloudy Crystal.
+						break;
+					case 4:
+						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150003, 2)); //Clear Crystal.
+						break;
+					case 5:
+						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150004, 2)); //Flawless Crystal.
+						break;
+					case 6:
+						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150005, 2)); //Luna’s Light.
+						break;
+					case 7:
+						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150006, 2)); //Luna’s Blessing.
+						break;
+				}
+				break;
+			case 834443: //Mechaturerk’s Treasure Box.
+			case 834444: //Mechaturerk’s Special Treasure Box.
+				break;
+		}
+	}
+
+	@Override
+	public void onEnterInstance(final Player player) {
+		if (!instanceReward.containPlayer(player.getObjectId())) {
+			addPlayerReward(player);
+		}
+
+		SecretMunitionsFactoryPlayerReward playerReward = getPlayerReward(player.getObjectId());
+
+		if (playerReward.isRewarded()) {
+			doReward(player);
+		}
+
+		startSpawnHelpers();
+		startPrepareTimer();
+
+		final int detachement = skillRace == Race.ASMODIANS ? 21348 : 21347;
+
+		SkillEngine.getInstance().applyEffectDirectly(detachement, player, player, 3000000);
+	}
+
+	private void startPrepareTimer() {
+		if (timerPrepare == null) {
+			timerPrepare = ThreadPoolManager.getInstance().schedule(new Runnable() {
+				@Override
+				public void run() {
+					startTaskInstanceTimer();
+
+					doors.get(27).setOpen(true);
+
+					killNpc(getNpcs(833868)); //Rock Pile.
+
+					startInstanceScore();
+					startNpcWalk();
+					startHelpersNpcTask();
+				}
+			}, prepareTimerSeconds);
+		}
+		instance.doOnAllPlayers(new Visitor<Player>() {
+			@Override
+			public void visit(Player player) {
+				PacketSendUtility.sendPacket(player, new SM_INSTANCE_SCORE(prepareTimerSeconds, instanceReward, null));
+			}
+		});
+	}
+
+	@Override
+	public void onOpenDoor(Player player, int doorId) {
+		if (doorId == 27) {
+			startTaskInstanceTimer();
+
+			doors.get(27).setOpen(true);
+
+			killNpc(getNpcs(833868)); //Rock Pile.
+
+			startInstanceScore();
+			startNpcWalk();
+			startHelpersNpcTask();
+		}
+	}
+
+	private void startSpawnHelpers() {
+		ThreadPoolManager.getInstance().schedule(new Runnable() {
+			@Override
+			public void run() {
+				Roxy = (Npc)spawn(833826, 385.30814f, 286.88065f, 198.56099f, (byte) 6); // Roxy.
+			}
+		}, 500);
+
+		ThreadPoolManager.getInstance().schedule(new Runnable() {
+			@Override
+			public void run() {
+				Mak = (Npc)spawn(833827, 386.10965f, 282.91656f, 198.24266f, (byte) 11); // Mak.
+			}
+		}, 1000);
+
+		ThreadPoolManager.getInstance().schedule(new Runnable() {
+			@Override
+			public void run() {
+				Manad = (Npc)spawn(833828, 386.33496f, 290.52594f, 198.5f, (byte) 115); // Manad.
+			}
+		}, 1500);
+
+		ThreadPoolManager.getInstance().schedule(new Runnable() {
+			@Override
+			public void run() {
+				Joel = (Npc)spawn(833897, 388.17896f, 279.8141f, 197.98882f, (byte) 14); // Joel.
+			}
+		}, 2000);
+
+		ThreadPoolManager.getInstance().schedule(new Runnable() {
+			@Override
+			public void run() {
+				Herez = (Npc)spawn(833829, 382.25574f, 283.81686f, 198.50284f, (byte) 7); // Herez.
+			}
+		}, 2500);
+	}
+
+	private void startNpcWalk() {
+		startNpcWalk(Herez, 2000);
+		startNpcWalk(Mak, 3000);
+		startNpcWalk(Roxy, 4000);
+		startNpcWalk(Joel, 5000);
+		startNpcWalk(Manad, 6000);
+	}
+
+	private void startNpcWalk(final Npc npc, int time) {
+		ThreadPoolManager.getInstance().schedule(new Runnable() {
+			@Override
+			public void run() {
+				npc.getSpawn().setWalkerId(FirstPartWalkerId);
+				WalkManager.startWalking((NpcAI2) npc.getAi2());
+			}
+		}, time);
+	}
+
+	private void startInstanceScore() {
+		if (!timerPrepare.isDone()) {
+			timerPrepare.cancel(false);
+		}
+
+		startTime = System.currentTimeMillis();
+		instanceReward.setInstanceScoreType(InstanceScoreType.START_PROGRESS);
+
+		sendPacket(0, 0);
+	}
+
+	protected void startTaskInstanceTimer() {
+		factoryTask2.add(ThreadPoolManager.getInstance().schedule(new Runnable() {
+			@Override
+			public void run() {
+				instance.doOnAllPlayers(new Visitor<Player>() {
+					@Override
+					public void visit(Player player) {
+						stopInstance2(player);
+					}
+				});
+			}
+		}, 3600000)); //1 Hour.
+	}
+
+	private void startHelpersNpcTask() {
+		helperNpcTask = ThreadPoolManager.getInstance().scheduleAtFixedRate(new Runnable() {
+			@Override
+			public void run() {
+				selectTargets(Roxy);
+				selectTargets(Mak);
+				selectTargets(Manad);
+				selectTargets(Herez);
+				selectTargets(Joel);
+			}
+		}, 5000,10000);
+	}
+
+	private void selectTargets(Npc npc) {
+		if (npc.getAi2().getState() == AIState.DESPAWNED) {
+			npc.setTarget(null);
+		}
+
+		if (npc.getTarget() == null) {
+			WalkManager.startWalking((NpcAI2) npc.getAi2());
+		}
+
+		npc.getMoveController().clearBackSteps();
+
+		if (npc.getTarget() != null) {
+			return;
+		}
+
+		selectTarget(npc,243657);
+		selectTarget(npc,243658);
+		selectTarget(npc,243663);
+		selectTarget(npc,243705);
+		selectTarget(npc,243706);
+		selectTarget(npc,243707);
+		selectTarget(npc,243708);
+		selectTarget(npc,243968);
+		selectTarget(npc,243969);
+		selectTarget(npc,243993);
+		selectTarget(npc,244023);
+		selectTarget(npc,244024);
+		selectTarget(npc,244025);
+		selectTarget(npc,244026);
+		selectTarget(npc,244027);
+		selectTarget(npc,244028);
+		selectTarget(npc,244033);
+		selectTarget(npc,244034);
+		selectTarget(npc,244035);
+		selectTarget(npc,245759);
+		selectTarget(npc,833825);
+		selectTarget(npc,833869);
+	}
+
+	private void selectTarget(Npc npc, int targetId) {
+		if (npc.getTarget() != null) {
+			return;
+		}
+
+		Npc target = instance.getNpc(targetId);
+
+		if (MathUtil.isInRange(target, npc, 25)) {
+			((LunaPatrolAI2)npc.getAi2()).addAggro(target);
+		}
+	}
+
+	protected void startTaskMonsterWaves() {
+		soldierNpcTask = ThreadPoolManager.getInstance().scheduleAtFixedRate(new Runnable() {
+			@Override
+			public void run() {
+				spawn(243853, 139.9844f, 236.16243f, 191.8727f, (byte) 15);
+				spawn(243853, 141.30562f, 281.98114f, 191.8727f, (byte) 106);
+			}
+		}, 30000,30000);
+
+		livingBombNpcTask= ThreadPoolManager.getInstance().scheduleAtFixedRate(new Runnable() {
+			@Override
+			public void run() {
+				if (shouldSpawnAzureBomb) {
+					sendMsgByRace(1403650, Race.PC_ALL, 0);
+					//Use the blue mechanical device!
+					sendMsgByRace(1403663, Race.PC_ALL, 5000);
+
+					spawn(243661, 139.9844f, 236.16243f, 191.8727f, (byte) 15);
+				}
+				else {
+					//The bomb has appeared!
+					sendMsgByRace(1403651, Race.PC_ALL, 0);
+					//Use the yellow  mechanical device!
+					sendMsgByRace(1403664, Race.PC_ALL, 5000);
+
+					spawn(243662, 141.30562f, 281.98114f, 191.8727f, (byte) 106);
+				}
+
+				shouldSpawnAzureBomb = !shouldSpawnAzureBomb;
+			}
+		}, 50000,50000);
+
+		golemNpcTask = ThreadPoolManager.getInstance().scheduleAtFixedRate(new Runnable() {
+			@Override
+			public void run() {
+				float startX = 153.13168f;
+				float startY = 236.62364f;
+				byte heading = 30;
+
+				if (!shouldSpawnGolemOnLeft) {
+					startY = 282.9958f;
+					heading = 90;
+				}
+
+				shouldSpawnGolemOnLeft = !shouldSpawnGolemOnLeft;
+
+				for (int i = 0; i < 3; i++) {
+					int npcId = 244135;
+
+					if (i == 1) {
+						npcId = 244136;
+					}
+
+					spawn(npcId, startX, startY, 191.8727f, heading);
+
+					startX += 5.00000f;
+				}
+			}
+		}, 45000,45000);
+	}
+
 	protected SecretMunitionsFactoryPlayerReward getPlayerReward(Integer object) {
 		return (SecretMunitionsFactoryPlayerReward) instanceReward.getPlayerReward(object);
 	}
-	
-	@SuppressWarnings("unchecked")
+
 	protected void addPlayerReward(Player player) {
 		instanceReward.addPlayerReward(new SecretMunitionsFactoryPlayerReward(player.getObjectId()));
-	}
-	
-	private boolean containPlayer(Integer object) {
-		return instanceReward.containPlayer(object);
 	}
 	
 	@Override
 	public InstanceReward<?> getInstanceReward() {
 		return instanceReward;
 	}
-	
-	public void onDropRegistered(Npc npc) {
-		Set<DropItem> dropItems = DropRegistrationService.getInstance().getCurrentDropMap().get(npc.getObjectId());
-		int npcId = npc.getNpcId();
-		switch (npcId) {
-			case 245185: //Mechaturerk’s Core.
-			    switch (Rnd.get(1, 7)) {
-				    case 1:
-						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150000, 2)); //Uncut Crystal.
-				    break;
-					case 2:
-						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150001, 2)); //Chipped Crystal.
-				    break;
-					case 3:
-						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150002, 2)); //Cloudy Crystal.
-				    break;
-					case 4:
-						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150003, 2)); //Clear Crystal.
-				    break;
-					case 5:
-						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150004, 2)); //Flawless Crystal.
-				    break;
-					case 6:
-						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150005, 2)); //Luna’s Light.
-				    break;
-					case 7:
-						dropItems.add(DropRegistrationService.getInstance().regDropItem(1, 0, npcId, 152150006, 2)); //Luna’s Blessing.
-				    break;
-			    }
-			break;
-			case 834443: //Mechaturerk’s Treasure Box.
-			case 834444: //Mechaturerk’s Special Treasure Box.
-			break;
-		}
-	}
-	
-	private void removeItems(Player player) {
-		Storage storage = player.getInventory();
-		storage.decreaseByItemId(164000418, storage.getItemCountByItemId(164000418)); //Stink Bomb.
-		storage.decreaseByItemId(164002362, storage.getItemCountByItemId(164002362)); //Mechaturerk Oil Cask.
-	}
-	
+
 	@Override
 	public void onDie(Npc npc) {
+		Player player = npc.getAggroList().getMostPlayerDamage();
+
 		int points = 0;
 		int npcId = npc.getNpcId();
-		Player player = npc.getAggroList().getMostPlayerDamage();
+
 		switch (npc.getObjectTemplate().getTemplateId()) {
-			case 243993: //Mechaturerk’s Cannon.
-				despawnNpc(npc);
-				spawn(833835, 231.14809f, 258.98563f, 191.01645f, (byte) 59); //Mechaturerk's Cannon.
+			case 244028: // Mechaturerk Gunner
+				despawnNpc(instance.getNpc(243993)); //Mechaturerk’s Cannon.
+   				Npc cannon = (Npc)spawn(833835, 225.14809f, 258.98563f, 191.01645f, (byte) 59); //Mechaturerk's Cannon.
+				Npc gate = instance.getNpc(833869);
+				npc.setTarget(gate); // Factory Gate
+				npc.getController().attackTarget(gate, 2000); // Factory Gate
+
+				//The Gunner’s Footlocker has appeared inside the Munitions Factory.
+				sendMsgByRace(1403642, Race.PC_ALL, 3000);
+				spawn(703377, 138.77333f, 266.49652f, 191.8727f, (byte) 0); //Gunner’s Footlocker.
+			break;
+			case 833869: // Factory Gate
+				despawnNpc(instance.getNpc(833835)); //Mechaturerk's Cannon.
 			break;
 			case 245759: //Siege Factory Watcher.
-				startFactoryTask1();
+				startTaskMonsterWaves();
 			break;
 			case 243663: //Mechaturerk Machine Monster.
 				despawnNpc(npc);
@@ -159,16 +427,42 @@ public class SecretMunitionsFactoryInstance extends GeneralInstanceHandler
 				sendMsgByRace(1403649, Race.PC_ALL, 0);
 				//The Machine Monster’s Footlocker has appeared inside the Munitions Factory.
 				sendMsgByRace(1403645, Race.PC_ALL, 5000);
+
 		        spawn(703380, 138.84042f, 256.166f, 191.8727f, (byte) 0); //Machine Monster’s Footlocker.
+
 				ThreadPoolManager.getInstance().schedule(new Runnable() {
 					@Override
 					public void run() {
-					    spawn(243664, 163.01869f, 259.16562f, 192.11992f, (byte) 1); //Mechaturerk.
+					    spawn(243664, 150.01869f, 259.16562f, 192.11992f, (byte) 1); //Mechaturerk.
 					}
 				}, 5000);
 			break;
 			case 243664: //Mechaturerk.
 				points = 878600;
+
+				helperNpcTask.cancel(true);
+
+				despawnNpc(Roxy);
+				despawnNpc(Mak);
+				despawnNpc(Manad);
+				despawnNpc(Herez);
+				despawnNpc(Joel);
+
+				soldierNpcTask.cancel(true);
+				livingBombNpcTask.cancel(true);
+				golemNpcTask.cancel(true);
+
+				despawnNpcs(instance.getNpcs(243853));
+				despawnNpcs(instance.getNpcs(243661));
+				despawnNpcs(instance.getNpcs(243662));
+				despawnNpcs(instance.getNpcs(244135));
+				despawnNpcs(instance.getNpcs(244136));
+				despawnNpcs(instance.getNpcs(836090));
+
+				//The Maintenance Soldier’s Footlocker has appeared inside the Munitions Factory.
+				sendMsgByRace(1403641, Race.PC_ALL, 3000);
+				spawn(703376, 138.75412f, 269.4629f, 191.8727f, (byte) 0); //Maintenance Soldier’s Footlocker.
+
 				//You killed Mechaturerk!
 				sendMsgByRace(1403653, Race.PC_ALL, 0);
 				//Mechaturerk’s Footlocker has appeared inside the Munitions Factory.
@@ -177,21 +471,22 @@ public class SecretMunitionsFactoryInstance extends GeneralInstanceHandler
 				sendMsgByRace(1403647, Race.PC_ALL, 10000);
 				//The Destruction Golem’s Footlocker has appeared inside the Munitions Factory.
 				sendMsgByRace(1403648, Race.PC_ALL, 15000);
+
 				switch (Rnd.get(1, 2)) {
 		            case 1:
-				        spawn(834443, 149.65579f, 260.02966f, 191.8727f, (byte) 0); //Mechaturerk’s Treasure Box.
+				        spawn(834443, 142.65579f, 260.02966f, 191.8727f, (byte) 0); //Mechaturerk’s Treasure Box.
 					break;
 					case 2:
-					    spawn(834444, 149.65579f, 260.02966f, 191.8727f, (byte) 0); //Mechaturerk’s Special Treasure Box.
+					    spawn(834444, 142.65579f, 260.02966f, 191.8727f, (byte) 0); //Mechaturerk’s Special Treasure Box.
 					break;
 				}
+
 				ThreadPoolManager.getInstance().schedule(new Runnable() {
 					@Override
 					public void run() {
 					    instance.doOnAllPlayers(new Visitor<Player>() {
 						    @Override
 						    public void visit(Player player) {
-							    stopInstance1(player);
 								stopInstance2(player);
 						    }
 					    });
@@ -210,11 +505,6 @@ public class SecretMunitionsFactoryInstance extends GeneralInstanceHandler
 				sendMsgByRace(1403644, Race.PC_ALL, 3000);
 		        spawn(703379, 138.76562f, 259.84332f, 191.8727f, (byte) 0); //Bomirunrunerk’s Footlocker.
 			break;
-			case 244028: //Mechaturerk Gunner.
-			    //The Gunner’s Footlocker has appeared inside the Munitions Factory.
-				sendMsgByRace(1403642, Race.PC_ALL, 3000);
-		        spawn(703377, 138.77333f, 266.49652f, 191.8727f, (byte) 0); //Gunner’s Footlocker.
-			break;
 			case 244035: //Damaged Mecha Infantryman.
 			    mechaInfantrymanKilled++;
 				if (mechaInfantrymanKilled == 2) {
@@ -224,16 +514,17 @@ public class SecretMunitionsFactoryInstance extends GeneralInstanceHandler
 				}
 			break;
 			case 244135: //Melee Support Destruction Golem.
-				//The recovery plant has emerged.
-				sendMsgByRace(1403824, Race.PC_ALL, 1000);
-				spawn(836090, npc.getX(), npc.getY(), npc.getZ(), npc.getHeading()); //Health Pod.
-			break;
 			case 244136: //Ranged Support Destruction Golem.
-				//The recovery plant has emerged.
-				sendMsgByRace(1403824, Race.PC_ALL, 1000);
-				spawn(836090, npc.getX(), npc.getY(), npc.getZ(), npc.getHeading()); //Health Pod.
+				if (Rnd.get(1, 6) == 1) {
+					//The recovery plant has emerged.
+					sendMsgByRace(1403824, Race.PC_ALL, 1000);
+
+					spawn(836090, npc.getX(), npc.getY(), npc.getZ(), npc.getHeading()); //Health Pod.
+				}
 			break;
-		} if (instanceReward.getInstanceScoreType().isStartProgress()) {
+		}
+
+		if (instanceReward.getInstanceScoreType().isStartProgress()) {
 			instanceReward.addNpcKill();
 			instanceReward.addPoints(points);
 			sendPacket(npc.getObjectTemplate().getNameId(), points);
@@ -242,148 +533,16 @@ public class SecretMunitionsFactoryInstance extends GeneralInstanceHandler
 	
 	@Override
 	public void handleUseItemFinish(Player player, Npc npc) {
-		switch (npc.getNpcId()) {
-			case 833833: //Bomb Chest.
-			    if (player.getInventory().isFull()) {
-					sendMsgByRace(1390149, Race.PC_ALL, 0);
-				}
-			    ItemService.addItem(player, 164000418, 1); //Stink Bomb.
-			break;
-			case 836090: //Health Pod.
-			    despawnNpc(npc);
-				player.getLifeStats().increaseHp(SM_ATTACK_STATUS.TYPE.HP, 50000);
-				player.getLifeStats().increaseHp(SM_ATTACK_STATUS.TYPE.MP, 50000);
-			break;
-			case 243660: //Oil Cask.
-			    despawnNpc(npc);
-				if (player.getInventory().isFull()) {
-					sendMsgByRace(1390149, Race.PC_ALL, 0);
-				}
-				ItemService.addItem(player, 164002362, 5); //Mechaturerk Oil Cask.
-			break;
+		if (npc.getNpcId() == 836090) {
+			despawnNpc(npc);
+			player.getLifeStats().increaseHp(SM_ATTACK_STATUS.TYPE.HP, 50000);
+			player.getLifeStats().increaseHp(SM_ATTACK_STATUS.TYPE.MP, 50000);
 		}
 	}
-	
-	private void startFactoryRaid1() {
-		//Mechaturerk Maintenance Soldier.
-		factoryTaskA1 = ThreadPoolManager.getInstance().schedule(new Runnable() {
-			@Override
-			public void run() {
-				sp(243853, 133.37782f, 229.28152f, 191.94075f, (byte) 15, 1000, "MunitionFactory1");
-				sp(243853, 132.91176f, 289.63672f, 191.98668f, (byte) 106, 2000, "MunitionFactory2");
-			}
-		}, 1000);
-		//Mechaturerk Maintenance Soldier.
-		factoryTaskA1 = ThreadPoolManager.getInstance().schedule(new Runnable() {
-			@Override
-			public void run() {
-				sp(243853, 133.37782f, 229.28152f, 191.94075f, (byte) 15, 1000, "MunitionFactory1");
-				sp(243853, 132.91176f, 289.63672f, 191.98668f, (byte) 106, 2000, "MunitionFactory2");
-			}
-		}, 30000);
-		//Mechaturerk Maintenance Soldier.
-		factoryTaskA1 = ThreadPoolManager.getInstance().schedule(new Runnable() {
-			@Override
-			public void run() {
-				sp(243853, 133.37782f, 229.28152f, 191.94075f, (byte) 15, 1000, "MunitionFactory1");
-				sp(243853, 132.91176f, 289.63672f, 191.98668f, (byte) 106, 2000, "MunitionFactory2");
-			}
-		}, 60000);
-	}
-	
-	private void startFactoryRaid2() {
-		//Melee Support Destruction Golem.
-		factoryTaskA2 = ThreadPoolManager.getInstance().schedule(new Runnable() {
-			@Override
-			public void run() {
-				sp(244135, 133.37782f, 229.28152f, 191.94075f, (byte) 15, 1000, "MunitionFactory1");
-				sp(244135, 132.91176f, 289.63672f, 191.98668f, (byte) 106, 2000, "MunitionFactory2");
-			}
-		}, 1000);
-		//Ranged Support Destruction Golem.
-		factoryTaskA2 = ThreadPoolManager.getInstance().schedule(new Runnable() {
-			@Override
-			public void run() {
-				sp(244136, 133.37782f, 229.28152f, 191.94075f, (byte) 15, 1000, "MunitionFactory1");
-				sp(244136, 132.91176f, 289.63672f, 191.98668f, (byte) 106, 2000, "MunitionFactory2");
-			}
-		}, 30000);
-		//Melee + Ranged Support Destruction Golem.
-		factoryTaskA2 = ThreadPoolManager.getInstance().schedule(new Runnable() {
-			@Override
-			public void run() {
-				sp(244135, 133.37782f, 229.28152f, 191.94075f, (byte) 15, 1000, "MunitionFactory1");
-				sp(244136, 132.91176f, 289.63672f, 191.98668f, (byte) 106, 2000, "MunitionFactory2");
-			}
-		}, 60000);
-	}
-	
-	private void startFactoryRaid3() {
-		//Azure Living Bomb.
-		factoryTaskA3 = ThreadPoolManager.getInstance().schedule(new Runnable() {
-			@Override
-			public void run() {
-				//The Azure Living bomb has appeared!
-				sendMsgByRace(1403650, Race.PC_ALL, 0);
-				//Use the blue mechanical device!
-				sendMsgByRace(1403663, Race.PC_ALL, 5000);
-				sp(243661, 133.37782f, 229.28152f, 191.94075f, (byte) 15, 1000, "MunitionFactory1");
-				sp(243661, 132.91176f, 289.63672f, 191.98668f, (byte) 106, 2000, "MunitionFactory2");
-			}
-		}, 1000);
-		//Golden Living Bomb.
-		factoryTaskA3 = ThreadPoolManager.getInstance().schedule(new Runnable() {
-			@Override
-			public void run() {
-				//The Golden Living bomb has appeared!
-				sendMsgByRace(1403651, Race.PC_ALL, 0);
-				//Use the yellow mechanical device!
-				sendMsgByRace(1403663, Race.PC_ALL, 5000);
-				sp(243662, 133.37782f, 229.28152f, 191.94075f, (byte) 15, 1000, "MunitionFactory1");
-				sp(243662, 132.91176f, 289.63672f, 191.98668f, (byte) 106, 2000, "MunitionFactory2");
-			}
-		}, 30000);
-		//Azure Living Bomb.
-		factoryTaskA3 = ThreadPoolManager.getInstance().schedule(new Runnable() {
-			@Override
-			public void run() {
-				//The Azure Living bomb has appeared!
-				sendMsgByRace(1403650, Race.PC_ALL, 0);
-				//Use the blue mechanical device!
-				sendMsgByRace(1403663, Race.PC_ALL, 5000);
-				sp(243661, 133.37782f, 229.28152f, 191.94075f, (byte) 15, 1000, "MunitionFactory1");
-				sp(243661, 132.91176f, 289.63672f, 191.98668f, (byte) 106, 2000, "MunitionFactory2");
-			}
-		}, 60000);
-		//Golden Living Bomb.
-		factoryTaskA3 = ThreadPoolManager.getInstance().schedule(new Runnable() {
-			@Override
-			public void run() {
-				//The Golden Living bomb has appeared!
-				sendMsgByRace(1403651, Race.PC_ALL, 0);
-				//Use the yellow mechanical device!
-				sendMsgByRace(1403663, Race.PC_ALL, 5000);
-				sp(243662, 133.37782f, 229.28152f, 191.94075f, (byte) 15, 1000, "MunitionFactory1");
-				sp(243662, 132.91176f, 289.63672f, 191.98668f, (byte) 106, 2000, "MunitionFactory2");
-			}
-		}, 90000);
-	}
-	
+
 	private int getTime() {
 		long result = (int) (System.currentTimeMillis() - startTime);
 		return instanceTimerSeconds - (int) result;
-	}
-	
-	private void sendPacket(final int nameId, final int point) {
-		instance.doOnAllPlayers(new Visitor<Player>() {
-			@Override
-			public void visit(Player player) {
-				if (nameId != 0) {
-					PacketSendUtility.sendPacket(player, new SM_SYSTEM_MESSAGE(1400237, new DescriptionId(nameId * 2 + 1), point));
-				}
-				PacketSendUtility.sendPacket(player, new SM_INSTANCE_SCORE(getTime(), instanceReward, null));
-			}
-		});
 	}
 	
 	private int checkRank(int totalPoints) {
@@ -394,142 +553,16 @@ public class SecretMunitionsFactoryInstance extends GeneralInstanceHandler
 		}
 		return rank;
 	}
-	
-   /**
-	* Raid Instance.
-	*/
-	protected void startFactoryTask1() {
-		factoryTask1.add(ThreadPoolManager.getInstance().schedule(new Runnable() {
-            @Override
-            public void run() {
-				startFactoryRaid1();
-				sendMsg("[START]: Wave <1/3>");
-            }
-        }, 120000)); //...2Min
-		factoryTask1.add(ThreadPoolManager.getInstance().schedule(new Runnable() {
-            @Override
-            public void run() {
-				startFactoryRaid2();
-				factoryTaskA1.cancel(true);
-				sendMsg("[START]: Wave <2/3>");
-				//The Maintenance Soldier’s Footlocker has appeared inside the Munitions Factory.
-				sendMsgByRace(1403641, Race.PC_ALL, 3000);
-				spawn(703376, 138.75412f, 269.4629f, 191.8727f, (byte) 0); //Maintenance Soldier’s Footlocker.
-            }
-        }, 240000)); //...4Min
-		factoryTask1.add(ThreadPoolManager.getInstance().schedule(new Runnable() {
-            @Override
-            public void run() {
-				startFactoryRaid3();
-				factoryTaskA2.cancel(true);
-				sendMsg("[START]: Wave <3/3>");
-            }
-        }, 360000)); //...6Min
-		factoryTask1.add(ThreadPoolManager.getInstance().schedule(new Runnable() {
-            @Override
-            public void run() {
-				instance.doOnAllPlayers(new Visitor<Player>() {
-				    @Override
-				    public void visit(Player player) {
-						stopInstance1(player);
-						factoryTaskA3.cancel(true);
-				    }
-			    });
-            }
-        }, 480000)); //...8Min
-	}
-	
-   /**
-	* Instance Timer.
-	*/
-	protected void startFactoryTask2() {
-		factoryTask2.add(ThreadPoolManager.getInstance().schedule(new Runnable() {
-            @Override
-            public void run() {
-				instance.doOnAllPlayers(new Visitor<Player>() {
-				    @Override
-				    public void visit(Player player) {
-					    stopInstance2(player);
-				    }
-			    });
-            }
-        }, 3600000)); //1 Hour.
-    }
-	
-	@Override
-	public void onOpenDoor(Player player, int doorId) {
-		if (doorId == 27) {
-			startFactoryTask2();
-			doors.get(27).setOpen(true);
-			killNpc(getNpcs(833868)); //Rock Pile.
-			//The player has 1 min to prepare !!! [Timer Red]
-			if ((timerPrepare != null) && (!timerPrepare.isDone() || !timerPrepare.isCancelled())) {
-				//Start the instance time !!! [Timer White]
-				startMainInstanceTimer();
-			}
-		}
-	}
-	
-	@Override
-	public void onEnterInstance(final Player player) {
-		if (!instanceReward.containPlayer(player.getObjectId())) {
-			addPlayerReward(player);
-		}
-		SecretMunitionsFactoryPlayerReward playerReward = getPlayerReward(player.getObjectId());
-		if (playerReward.isRewarded()) {
-			doReward(player);
-		}
-		startPrepareTimer();
-		spawnLunaDetachment();
-		final int lunaDetachement = skillRace == Race.ASMODIANS ? 21348 : 21347;
-		SkillEngine.getInstance().applyEffectDirectly(lunaDetachement, player, player, 3000000 * 1);
-	}
-	
-	private void startPrepareTimer() {
-		if (timerPrepare == null) {
-			timerPrepare = ThreadPoolManager.getInstance().schedule(new Runnable() {
-				@Override
-				public void run() {
-					startMainInstanceTimer();
-				}
-			}, prepareTimerSeconds);
-		}
-		instance.doOnAllPlayers(new Visitor<Player>() {
-			@Override
-			public void visit(Player player) {
-				PacketSendUtility.sendPacket(player, new SM_INSTANCE_SCORE(prepareTimerSeconds, instanceReward, null));
-			}
-		});
-	}
-	
-	private void startMainInstanceTimer() {
-		if (!timerPrepare.isDone()) {
-			timerPrepare.cancel(false);
-		}
-		startTime = System.currentTimeMillis();
-		instanceReward.setInstanceScoreType(InstanceScoreType.START_PROGRESS);
-		sendPacket(0, 0);
-	}
-	
-	private void spawnLunaDetachment() {
-	    spawn(833826, 385.30814f, 286.88065f, 198.56099f, (byte) 6); //Roxy.
-		spawn(833827, 386.10965f, 282.91656f, 198.24266f, (byte) 11); //Mak.
-		spawn(833828, 386.33496f, 290.52594f, 198.5f, (byte) 115); //Manad.
-		spawn(833829, 382.25574f, 283.81686f, 198.50284f, (byte) 7); //Herez.
-		spawn(833897, 388.17896f, 279.8141f, 197.98882f, (byte) 14); //Joel.
-	}
-	
-	protected void stopInstance1(Player player) {
-		stopInstanceTask1();
-		sendMsg("[SUCCES]: You survived !!! :) ");
-	}
-	
+
 	protected void stopInstance2(Player player) {
         stopInstanceTask2();
-		instanceReward.setRank(6);
+
+		instanceReward.setRank(1);
 		instanceReward.setRank(checkRank(instanceReward.getPoints()));
 		instanceReward.setInstanceScoreType(InstanceScoreType.END_PROGRESS);
+
 		doReward(player);
+
 		sendMsg("[SUCCES]: You have finished <Secret Munitions Factory>");
 		sendPacket(0, 0);
 	}
@@ -575,25 +608,36 @@ public class SecretMunitionsFactoryInstance extends GeneralInstanceHandler
 	
 	@Override
 	public void onInstanceDestroy() {
-		if (timerInstance != null) {
-			timerInstance.cancel(false);
-		} if (timerPrepare != null) {
+		for (Npc npc: instance.getNpcs()) {
+			if (npc != null) {
+				npc.getController().onDelete();
+			}
+		}
+
+		if (helperNpcTask != null) {
+			helperNpcTask.cancel(true);
+		}
+		if (timerPrepare != null) {
 			timerPrepare.cancel(false);
 		}
-		stopInstanceTask1();
-		stopInstanceTask2();
+		if (soldierNpcTask != null) {
+			soldierNpcTask.cancel(true);
+		}
+		if (livingBombNpcTask != null) {
+			livingBombNpcTask.cancel(true);
+		}
+		if (golemNpcTask != null) {
+			golemNpcTask.cancel(true);
+		}
+		if (factoryTask2 != null) {
+			stopInstanceTask2();
+		}
+
 		isInstanceDestroyed = true;
 		instanceReward.clear();
 		doors.clear();
 	}
-	
-	private void stopInstanceTask1() {
-        for (FastList.Node<Future<?>> n = factoryTask1.head(), end = factoryTask1.tail(); (n = n.getNext()) != end; ) {
-            if (n.getValue() != null) {
-                n.getValue().cancel(true);
-            }
-        }
-    }
+
 	private void stopInstanceTask2() {
         for (FastList.Node<Future<?>> n = factoryTask2.head(), end = factoryTask2.tail(); (n = n.getNext()) != end; ) {
             if (n.getValue() != null) {
@@ -601,32 +645,21 @@ public class SecretMunitionsFactoryInstance extends GeneralInstanceHandler
             }
         }
     }
-	
-    protected void sp(final int npcId, final float x, final float y, final float z, final byte h, final int time, final String walkerId) {
-        factoryTask1.add(ThreadPoolManager.getInstance().schedule(new Runnable() {
-            @Override
-            public void run() {
-                if (!isInstanceDestroyed) {
-                    Npc npc = (Npc) spawn(npcId, x, y, z, h);
-                    npc.getSpawn().setWalkerId(walkerId);
-                    WalkManager.startWalking((NpcAI2) npc.getAi2());
-                }
-            }
-        }, time));
-    }
-	
+
 	protected void despawnNpc(Npc npc) {
         if (npc != null) {
             npc.getController().onDelete();
         }
     }
-	
-	private void deleteNpc(int npcId) {
-		if (getNpc(npcId) != null) {
-			getNpc(npcId).getController().onDelete();
+
+	protected void despawnNpcs(List<Npc> npcs) {
+		for (Npc npc: npcs) {
+			if (npc != null) {
+				npc.getController().onDelete();
+			}
 		}
 	}
-	
+
 	protected void killNpc(List<Npc> npcs) {
         for (Npc npc: npcs) {
             npc.getController().die();
@@ -637,21 +670,22 @@ public class SecretMunitionsFactoryInstance extends GeneralInstanceHandler
 		if (!isInstanceDestroyed) {
 			return instance.getNpcs(npcId);
 		}
+
 		return null;
 	}
-	
+
 	@Override
 	public void onPlayerLogOut(Player player) {
-		removeItems(player);
 		removeEffects(player);
+		onInstanceDestroy();
 	}
-	
+
 	@Override
 	public void onLeaveInstance(Player player) {
-		removeItems(player);
 		removeEffects(player);
+		onInstanceDestroy();
 	}
-	
+
 	private void removeEffects(Player player) {
 		PlayerEffectController effectController = player.getEffectController();
 		effectController.removeEffect(21347);
@@ -681,5 +715,17 @@ public class SecretMunitionsFactoryInstance extends GeneralInstanceHandler
 				});
 			}
 		}, time);
+	}
+
+	private void sendPacket(final int nameId, final int point) {
+		instance.doOnAllPlayers(new Visitor<Player>() {
+			@Override
+			public void visit(Player player) {
+				if (nameId != 0) {
+					PacketSendUtility.sendPacket(player, new SM_SYSTEM_MESSAGE(1400237, new DescriptionId(nameId * 2 + 1), point));
+				}
+				PacketSendUtility.sendPacket(player, new SM_INSTANCE_SCORE(getTime(), instanceReward, null));
+			}
+		});
 	}
 }

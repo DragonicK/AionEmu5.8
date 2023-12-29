@@ -56077,6 +56077,7 @@
         <npcskill probability="90" skilllevel="1" skillid="21364"/>
 		<npcskill probability="90" skilllevel="1" skillid="21365"/>
 		<npcskill probability="90" skilllevel="1" skillid="21368"/>
+        <npcskill probability="90" skilllevel="1" skillid="21397"/>
 		<npcskill probability="90" skilllevel="1" skillid="21398"/>
     </npcskills>
 	<!-- Mechaturerk’s Defense Turret -->
