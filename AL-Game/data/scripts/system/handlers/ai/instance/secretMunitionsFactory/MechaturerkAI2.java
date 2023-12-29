@@ -54,12 +54,12 @@ public class MechaturerkAI2 extends AggressiveNpcAI2
 	}
 	
 	private void spawnMechaturerkCore(int npcId) {
-		rndSpawnInRange(npcId, Rnd.get(1, 5));
-		rndSpawnInRange(npcId, Rnd.get(1, 5));
-		rndSpawnInRange(npcId, Rnd.get(1, 5));
-		rndSpawnInRange(npcId, Rnd.get(1, 5));
-		rndSpawnInRange(npcId, Rnd.get(1, 5));
-		rndSpawnInRange(npcId, Rnd.get(1, 5));
+		rndSpawnInRange(npcId, Rnd.get(1, 8));
+		rndSpawnInRange(npcId, Rnd.get(1, 8));
+		rndSpawnInRange(npcId, Rnd.get(1, 8));
+		rndSpawnInRange(npcId, Rnd.get(1, 8));
+		rndSpawnInRange(npcId, Rnd.get(1, 8));
+		rndSpawnInRange(npcId, Rnd.get(1, 8));
 	}
 	
 	private Npc rndSpawnInRange(int npcId, float distance) {
