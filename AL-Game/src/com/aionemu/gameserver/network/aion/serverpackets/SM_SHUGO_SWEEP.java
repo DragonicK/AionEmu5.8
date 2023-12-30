@@ -30,26 +30,27 @@ public class SM_SHUGO_SWEEP extends AionServerPacket {
 	private int diceGolden;
 	private int unkButton;
 	private int moveStep;
+	private int completedSteps;
 
 	@SuppressWarnings("unused")
 	private int unk;
 
 	// sweep player infos
-	public SM_SHUGO_SWEEP(int tableId, int currentStep, int diceLeft, int diceGolden, int unkButton, int moveStep) {
+	public SM_SHUGO_SWEEP(int tableId, int currentStep, int diceLeft, int diceGolden, int unkButton, int moveStep, int completedSteps) {
 		this.currentStep = currentStep;
 		this.diceLeft = diceLeft;
 		this.diceGolden = diceGolden;
 		this.unkButton = unkButton;
 		this.moveStep = moveStep;
 		this.tableId = tableId;
+		this.completedSteps = completedSteps;
 	}
 
 	@Override
 	protected void writeImpl(AionConnection con) {
 		writeD(tableId); // table id
 		writeD(currentStep); // current step
-		writeH(0); // reward ??
-		writeH(0); // reward ??
+		writeD(completedSteps); // items that you got (bitwise)
 		writeD(0);
 		writeD(diceLeft); // dice left
 		writeD(diceGolden); // dice golden

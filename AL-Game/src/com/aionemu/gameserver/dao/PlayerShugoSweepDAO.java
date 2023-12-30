@@ -31,11 +31,11 @@ public abstract class PlayerShugoSweepDAO implements DAO {
 
 	public abstract void load(Player player);
 
-	public abstract boolean add(final int playerId, int freeDice, int step, int boardId);
+	public abstract boolean add(final int playerId, final int dice, final int step, final int boardId, final int goldenDice, final int sweepReset, final int completedSteps);
 
 	public abstract boolean delete();
 
 	public abstract boolean store(Player player);
 
-	public abstract boolean setShugoSweepByObjId(int obj, final int freeDice, final int step, int boardId, int goldenDice, int resetSweep);
+	public abstract boolean setShugoSweepByObjId(int obj, final int freeDice, final int step, final int boardId, final int goldenDice, int resetSweep, final int completedSteps);
 }
