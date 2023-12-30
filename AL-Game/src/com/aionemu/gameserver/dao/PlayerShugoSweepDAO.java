@@ -37,5 +37,5 @@ public abstract class PlayerShugoSweepDAO implements DAO {
 
 	public abstract boolean store(Player player);
 
-	public abstract boolean setShugoSweepByObjId(final int obj, int freeDice, int step, int boardId);
+	public abstract boolean setShugoSweepByObjId(int obj, final int freeDice, final int step, int boardId, int goldenDice, int resetSweep);
 }

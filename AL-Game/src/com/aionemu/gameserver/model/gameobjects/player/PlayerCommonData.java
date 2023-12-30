@@ -108,9 +108,6 @@ public class PlayerCommonData extends VisibleObjectTemplate {
 	private boolean AbyssFavorBoost = false;
 	// Tower Of Challenge 5.6
 	private int floor;
-	// Shugo Sweep 5.1
-	private int goldenDice;
-	private int resetBoard;
 	// Atreian Passport Creation Date
 	private Timestamp creationDate;
 	private int minionSkillPoints;
@@ -1083,22 +1080,6 @@ public class PlayerCommonData extends VisibleObjectTemplate {
 
 	public void setPassportTime(int time) {
 		this.time = time;
-	}
-
-	public int getGoldenDice() {
-		return goldenDice;
-	}
-
-	public void setGoldenDice(int dice) {
-		this.goldenDice = dice;
-	}
-
-	public int getResetBoard() {
-		return resetBoard;
-	}
-
-	public void setResetBoard(int reset) {
-		this.resetBoard = reset;
 	}
 
 	public void setCreationDate(Timestamp date) {

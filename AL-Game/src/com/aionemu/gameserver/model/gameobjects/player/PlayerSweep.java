@@ -26,7 +26,7 @@ import com.aionemu.gameserver.model.gameobjects.PersistentState;
 /**
  * Created by Wnkrz on 23/10/2017.
  */
-
+// Shugo Sweep 5.1
 public class PlayerSweep {
 	Logger log = LoggerFactory.getLogger(PlayerSweep.class);
 	private PersistentState persistentState;
@@ -34,6 +34,8 @@ public class PlayerSweep {
 	private int step;
 	private int freeDice;
 	private int boardId;
+	private int goldenDice;
+	private int resetBoard;
 
 	public PlayerSweep(int step, int freeDice, int boardId) {
 		this.step = step;
@@ -65,6 +67,22 @@ public class PlayerSweep {
 		return boardId;
 	}
 
+	public int getGoldenDice() {
+		return goldenDice;
+	}
+
+	public void setGoldenDice(int dice) {
+		this.goldenDice = dice;
+	}
+
+	public int getResetBoard() {
+		return resetBoard;
+	}
+
+	public void setResetBoard(int reset) {
+		this.resetBoard = reset;
+	}
+
 	public void setBoardId(int boardId) {
 		this.boardId = boardId;
 	}
@@ -75,7 +93,7 @@ public class PlayerSweep {
 
 	public void setShugoSweepByObjId(int playerId) {
 		DAOManager.getDAO(PlayerShugoSweepDAO.class).setShugoSweepByObjId(playerId, getFreeDice(), getStep(),
-				getBoardId());
+				getBoardId(), getGoldenDice(), getResetBoard());
 	}
 
 	public void setPersistentState(PersistentState persistentState) {

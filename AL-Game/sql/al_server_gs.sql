@@ -761,8 +761,6 @@ CREATE TABLE `players` (
   `frenzy_count` int(1) DEFAULT '0',
   `toc_floor` int(11) DEFAULT '0',
   `stone_cp` int(10) NOT NULL DEFAULT '0',
-  `golden_dice` int(10) NOT NULL DEFAULT '0',
-  `sweep_reset` int(1) NOT NULL DEFAULT '0',
   `minion_skill_points` int(5) NOT NULL DEFAULT '0',
   `minion_function_time` timestamp NULL DEFAULT NULL,  
   PRIMARY KEY (`id`),
@@ -1268,6 +1266,8 @@ CREATE TABLE `player_shugo_sweep` (
   `free_dice` int(10) NOT NULL DEFAULT '0',
   `sweep_step` int(10) NOT NULL DEFAULT '0',
   `board_id` int(10) NOT NULL DEFAULT '0',
+  `golden_dice` int(10) NOT NULL DEFAULT '0',
+  `sweep_reset` int(1) NOT NULL DEFAULT '0'
   PRIMARY KEY (`player_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
