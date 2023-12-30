@@ -37,8 +37,7 @@ public class CM_LUNA_SHOP extends AionClientPacket {
 	private int teleportId;
 	private int slot;
 	private int ItemObjId;
-	@SuppressWarnings("unused")
-	private int lunaCost;
+	private int isRemoving;
 
 	public CM_LUNA_SHOP(int opcode, State state, State... restStates) {
 		super(opcode, state, restStates);
@@ -74,7 +73,7 @@ public class CM_LUNA_SHOP extends AionClientPacket {
 		case 11: // Modify appearance
 			slot = readC();
 			ItemObjId = readD();
-			lunaCost = readC();
+			isRemoving = readC();
 			break;
 		case 12: // Open Chest.
 			break;
@@ -135,7 +134,7 @@ public class CM_LUNA_SHOP extends AionClientPacket {
 			LunaShopService.getInstance().dorinerkWardrobeAct(player, slot, ItemObjId);
 			break;
 		case 11:
-			LunaShopService.getInstance().dorinerkWardrobeModifyAppearance(player, slot, ItemObjId);
+			LunaShopService.getInstance().dorinerkWardrobeModifyAppearance(player, slot, ItemObjId, isRemoving);
 			break;
 		case 12:
 			LunaShopService.getInstance().munirunerksTreasureChamber(player);
@@ -147,7 +146,7 @@ public class CM_LUNA_SHOP extends AionClientPacket {
 			LunaShopService.getInstance().diceGame(player);
 			break;
 		case 16:
-			LunaShopService.getInstance().diceGameReward(player);
+			LunaShopService.getInstance().lunaDiceReward(player);
 			break;
 		default:
 			System.out.println("UNKOWN ACTION-ID: " + actionId);

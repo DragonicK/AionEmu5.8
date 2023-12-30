@@ -307,8 +307,6 @@ public class Player extends Creature {
 	private boolean authorizeBoost;
 	private boolean setMinionSpawned;
 	private Map<Integer, MaxCountOfDay> maxCountEvent;
-	private int LunaDiceGame;
-	private int LunaDiceGameTry = 0;
 	// Pvp System:
 	private boolean lawless = false;
 	private boolean bandit = false;
@@ -348,6 +346,10 @@ public class Player extends Creature {
 	// This variables are for the custom RP and GM system
 	private boolean isGmMode = false;
 	private long creationDay;
+	//Luna Dice Parts
+	private int lunaDiceCount;
+	private boolean lunaGoldenDice;
+	private int lunaDiceReward;
 
 	public long getCreationDate() {
 		Timestamp creationDate = playerCommonData.getCreationDate();
@@ -3291,33 +3293,6 @@ public class Player extends Creature {
 	}
 
 	/**
-	 * Luna Dice Game
-	 */
-	public int getLunaDiceGame() {
-		return this.LunaDiceGame;
-	}
-
-	public void setLunaDiceGame(int dice, boolean reset) {
-		if (!reset) {
-			if (dice > this.LunaDiceGame) {
-				this.LunaDiceGame = dice;
-			} else {
-				return;
-			}
-		} else {
-			this.LunaDiceGame = dice;
-		}
-	}
-
-	public int getLunaDiceGameTry() {
-		return this.LunaDiceGameTry;
-	}
-
-	public void setLunaDiceGameTry(int dice) {
-		this.LunaDiceGameTry = dice;
-	}
-
-	/**
 	 * Custom PK/PVE Mode
 	 */
 	public boolean isInPkMode() {
@@ -3417,5 +3392,29 @@ public class Player extends Creature {
 	public void setDisassemblyItemLists(List<DisassembleItem> disassemblyItemLists)
 	{
 		this.disassemblyItemLists = disassemblyItemLists;
+	}
+
+	public int getLunaDiceCount() {
+		return lunaDiceCount;
+	}
+
+	public void setLunaDiceCount(int lunaDiceCount) {
+		this.lunaDiceCount = lunaDiceCount;
+	}
+
+	public boolean isLunaGoldenDice() {
+		return lunaGoldenDice;
+	}
+
+	public void setLunaGoldenDice(boolean lunaGoldenDice) {
+		this.lunaGoldenDice = lunaGoldenDice;
+	}
+
+	public int getLunaDiceReward() {
+		return lunaDiceReward;
+	}
+
+	public void setLunaDiceReward(int lunaDiceReward) {
+		this.lunaDiceReward = lunaDiceReward;
 	}
 }

@@ -22,9 +22,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.aionemu.gameserver.model.templates.luna_dice.LunaDiceItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.aionemu.gameserver.configs.main.LunaConfig;
 import com.aionemu.commons.database.dao.DAOManager;
 import com.aionemu.commons.services.CronService;
 import com.aionemu.commons.utils.Rnd;
@@ -315,7 +317,7 @@ public class LunaShopService {
 		if (player.getPlayerLunaShop().isFreeChest()) {
 			player.getPlayerLunaShop().setFreeChest(false);
 		} else {
-			player.setLunaAccount(player.getLunaAccount() - 5);
+			player.setLunaAccount(player.getLunaAccount() - 2);
 			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(0));
 		}
 		PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(5));
@@ -371,32 +373,46 @@ public class LunaShopService {
 		PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP(10, 0x00, applySlot, itemId, 1));
 	}
 
-	public void dorinerkWardrobeModifyAppearance(Player player, int applySlot, int itemObjId) {
+	public void dorinerkWardrobeModifyAppearance(Player player, int applySlot, int itemObjId, int isRemoving) {
 		int itemId = DAOManager.getDAO(PlayerWardrobeDAO.class).getWardrobeItemBySlot(player.getObjectId(), applySlot);
 		int reskinCount = DAOManager.getDAO(PlayerWardrobeDAO.class).getReskinCountBySlot(player.getObjectId(),
 				applySlot);
 		ItemTemplate it = DataManager.ITEM_DATA.getItemTemplate(itemId);
 		Storage inventory = player.getInventory();
 		Item keepItem = inventory.getItemByObjId(itemObjId);
-		if (reskinCount != 0) {
-			DAOManager.getDAO(PlayerWardrobeDAO.class).setReskinCountBySlot(player.getObjectId(), applySlot,
-					reskinCount + 1);
-			player.setLunaAccount(player.getLunaAccount() - 15);
-			keepItem.setItemSkinTemplate(it);
+
+		if (isRemoving == 1) {
+			ItemTemplate defaultTemplate = DataManager.ITEM_DATA.getItemTemplate(itemObjId);
+			keepItem.setItemSkinTemplate(defaultTemplate);
+			keepItem.setLunaReskin(false);
+
 			if (!keepItem.getItemTemplate().isItemDyePermitted()) {
 				keepItem.setItemColor(0);
 			}
-			keepItem.setLunaReskin(true);
-			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(0, player.getLunaAccount()));
-		} else {
-			DAOManager.getDAO(PlayerWardrobeDAO.class).setReskinCountBySlot(player.getObjectId(), applySlot,
-					reskinCount + 1);
-			keepItem.setItemSkinTemplate(it);
-			if (!keepItem.getItemTemplate().isItemDyePermitted()) {
-				keepItem.setItemColor(0);
-			}
-			keepItem.setLunaReskin(true);
 		}
+		else {
+			if (reskinCount != 0) {
+				DAOManager.getDAO(PlayerWardrobeDAO.class).setReskinCountBySlot(player.getObjectId(), applySlot,
+						reskinCount + 1);
+				player.setLunaAccount(player.getLunaAccount() - 12);
+				keepItem.setItemSkinTemplate(it);
+
+				if (!keepItem.getItemTemplate().isItemDyePermitted()) {
+					keepItem.setItemColor(0);
+				}
+				keepItem.setLunaReskin(true);
+				PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(0, player.getLunaAccount()));
+			} else {
+				DAOManager.getDAO(PlayerWardrobeDAO.class).setReskinCountBySlot(player.getObjectId(), applySlot,
+						reskinCount + 1);
+				keepItem.setItemSkinTemplate(it);
+				if (!keepItem.getItemTemplate().isItemDyePermitted()) {
+					keepItem.setItemColor(0);
+				}
+				keepItem.setLunaReskin(true);
+			}
+		}
+
 		ItemPacketService.updateItemAfterInfoChange(player, keepItem, ItemUpdateType.STATS_CHANGE);
 		PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE
 				.STR_CHANGE_ITEM_SKIN_SUCCEED(new DescriptionId(keepItem.getItemTemplate().getNameId())));
@@ -435,7 +451,7 @@ public class LunaShopService {
 				InstanceService.registerPlayerWithInstance(contaminatedUnderpath, player);
 				TeleportService2.teleportTo(player, 301630000, contaminatedUnderpath.getInstanceId(), 230f, 169f, 164f,
 						(byte) 60);
-				player.setLunaAccount(player.getLunaAccount() - 89);
+				player.setLunaAccount(player.getLunaAccount() - 20);
 				PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(0));
 				PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 1, 45));
 				PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP(0, 0));
@@ -507,8 +523,8 @@ public class LunaShopService {
 		if (player.getMuniKeys() > 0) {
 			player.setMuniKeys(player.getMuniKeys() - 1);
 		} else {
-			player.setLunaAccount(player.getLunaAccount() - 19);
-			player.setLunaConsumePoint(player.getLunaConsumePoint() + 25);
+			player.setLunaAccount(player.getLunaAccount() - 5);
+			player.setLunaConsumePoint(player.getLunaConsumePoint() + 5);
 			switch (player.getLunaConsumePoint()) {
 			case 25:
 				reciveBonus = true;
@@ -600,86 +616,241 @@ public class LunaShopService {
 		case 2:
 		case 3:
 		case 4:
-			return 69;
+			return 10;
 		case 5:
 		case 6:
 		case 7:
 		case 8:
-			return 99;
+			return 12;
 		}
 		return 0;
 	}
 
-	public void diceGame(Player player) { // TODO Golden Dice + Golden Price fix..
-		int random = Rnd.get(1, 1000);
-		if (random >= 100 && random <= 400) {
-			player.setLunaDiceGame(1, false);
-		} else if (random >= 450 && random <= 749) {
-			player.setLunaDiceGame(2, false);
-		} else if (random >= 750 && random <= 849) {
-			player.setLunaDiceGame(3, false);
-		} else if (random >= 850 && random <= 900) {
-			player.setLunaDiceGame(4, false);
-		} else if (random >= 950 && random <= 1000) {
-			player.setLunaDiceGame(5, false);
+	public void diceGame(Player player) {
+		if (!LunaConfig.ENABLE_LUNA_DICE) {
+			PacketSendUtility.sendPacket(player, new SM_SYSTEM_MESSAGE(1404432, new Object[0]));
+			return;
 		}
-		int diceTry = player.getLunaDiceGameTry();
 
-		if (diceTry < 1) {
-			player.setLunaDiceGameTry(player.getLunaDiceGameTry() + 1);
-			player.setLunaConsumePoint(player.getLunaConsumePoint() + lunaDicePrice(diceTry));
-			player.setLunaAccount((player.getLunaAccount() - lunaDicePrice(diceTry)));
-			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(5));
-			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(0));
-			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 1, 78));
-			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP(15));
+		int price = LunaConfig.LUNA_ROLL_DICE_PRICE;
+
+		if (player.isLunaGoldenDice()) {
+			price = LunaConfig.LUNA_ROLL_GOLDEN_DICE_PRICE;
+		}
+
+		if ((player.getLunaAccount() < price)) {
+			PacketSendUtility.sendPacket(player, new SM_SYSTEM_MESSAGE(1403481, new Object[0]));
+			return;
+		}
+
+		player.getPlayerAccount().setLuna(player.getLunaAccount() - price);
+		PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(0));
+
+		boolean isDiceFinish = false;
+
+		int rndSuccess = Rnd.get(1, 100);
+		int diceCount = player.getLunaDiceCount();
+		int diceReward = player.getLunaDiceReward();
+
+		if (player.getLunaDiceCount() < 5) {
+			int randomNumber = Rnd.get(1, 5);
+
+			switch (randomNumber) {
+				case 1:
+					if (rndSuccess <= LunaConfig.LUNA_DICE_RATE_1) {
+						if (diceCount <= 1) {
+							player.setLunaDiceCount(1);
+							diceReward = LunaConfig.LUNA_DICE_1;
+						}
+					}
+					break;
+
+				case 2:
+					if (rndSuccess <= LunaConfig.LUNA_DICE_RATE_2) {
+						if (diceCount <= 2) {
+							player.setLunaDiceCount(2);
+							diceReward = LunaConfig.LUNA_DICE_2;
+						}
+					}
+					break;
+				case 3:
+					if (rndSuccess <= LunaConfig.LUNA_DICE_RATE_3) {
+						if (diceCount <= 3) {
+							player.setLunaDiceCount(3);
+							diceReward = LunaConfig.LUNA_DICE_3;
+						}
+					}
+					break;
+				case 4:
+					if (rndSuccess <= LunaConfig.LUNA_DICE_RATE_4) {
+						if (diceCount <= 4) {
+							player.setLunaDiceCount(4);
+							diceReward = LunaConfig.LUNA_DICE_4;
+						}
+					}
+					break;
+				case 5:
+					if (rndSuccess <= LunaConfig.LUNA_DICE_RATE_5) {
+						if (diceCount <= 5) {
+							player.setLunaGoldenDice(true);
+							player.setLunaDiceCount(5);
+							diceReward = LunaConfig.LUNA_DICE_5;
+						}
+					}
+					break;
+			}
+		}
+		else {
+			boolean isFailed = false;
+
+			if (rndSuccess <= LunaConfig.LUNA_DICE_RATE_5) {
+				int rndGolden = Rnd.get(1, 100);
+
+				if (rndGolden <= LunaConfig.LUNA_DICE_RATE_6) {
+					if (diceCount <= 6) {
+						player.setLunaDiceCount(6);
+						diceReward = LunaConfig.LUNA_DICE_6;
+					}
+                } else if (rndGolden <= LunaConfig.LUNA_DICE_RATE_7) {
+					if (diceCount <= 7) {
+						player.setLunaDiceCount(7);
+						diceReward = LunaConfig.LUNA_DICE_7;
+					}
+                }
+				else {
+					isFailed = true;
+				}
+
+				isDiceFinish = true;
+            }  else {
+				isFailed = true;
+				isDiceFinish = true;
+			}
+
+			if (isFailed) {
+				player.setLunaDiceCount(5);
+				diceReward = LunaConfig.LUNA_GOLDEN_DICE_FAIL;
+			}
+		}
+
+		// 0 = Count 1 # level 1 box
+		// 1 = Count 2 # level 1 box
+		// 2 = Count 3 # level 1 box
+		// 3 = Count 1 # level 2 box
+		// 4 = Count 2 # level 2 box
+		// 5 = Count 1 # level 3 box
+		// 6 = Count 1 # level 4 box
+		// 7 = Count 1 # level 5 box
+
+		player.setLunaDiceReward(diceReward);
+
+		PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP(15, isDiceFinish));
+
+		sendLunaPrice(player);
+	}
+
+	public void lunaDiceReward(Player player) {
+		int rollDiceCount = player.getLunaDiceCount();
+		boolean isLunaGoldenDice = player.isLunaGoldenDice();
+
+		List<LunaDiceItem> items = null;
+
+		player.setLunaDiceCount(0);
+		player.setLunaDiceReward(0);
+		player.setLunaGoldenDice(false);
+
+		PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP(16, true));
+
+		switch (rollDiceCount) {
+			case 0:
+				// 0 = Count 1 # level 1 box
+				items = DataManager.LUNA_DICE.getLunaDiceTabById(1);
+
+				givePlayerReward(player, items);
+				break;
+			case 1:
+				// 1 = Count 2 # level 1 box
+				items = DataManager.LUNA_DICE.getLunaDiceTabById(1);
+
+				givePlayerReward(player, items);
+				givePlayerReward(player, items);
+				break;
+			case 2:
+				// 2 = Count 3 # level 1 box
+				items = DataManager.LUNA_DICE.getLunaDiceTabById(1);
+
+				givePlayerReward(player, items);
+				givePlayerReward(player, items);
+				givePlayerReward(player, items);
+				break;
+			case 3:
+				// 3 = Count 1 # level 2 box
+				items = DataManager.LUNA_DICE.getLunaDiceTabById(2);
+
+				givePlayerReward(player, items);
+				break;
+			case 4:
+				// 4 = Count 2 # level 2 box
+				items = DataManager.LUNA_DICE.getLunaDiceTabById(2);
+
+				givePlayerReward(player, items);
+				givePlayerReward(player, items);
+				break;
+			case 5:
+				// 5 = Count 1 # level 3 box
+				items = DataManager.LUNA_DICE.getLunaDiceTabById(3);
+
+				// If it failed, 2 box level 3
+				if (isLunaGoldenDice) {
+					givePlayerReward(player, items);
+					givePlayerReward(player, items);
+				}
+				else {
+					givePlayerReward(player, items);
+				}
+
+				break;
+			case 6:
+				// 6 = Count 1 # level 4 box
+				items = DataManager.LUNA_DICE.getLunaDiceTabById(4);
+
+				givePlayerReward(player, items);
+				break;
+			case 7:
+				// 7 = Count 1 # level 5 box
+				items = DataManager.LUNA_DICE.getLunaDiceTabById(5);
+
+				givePlayerReward(player, items);
+				break;
+		}
+
+		sendLunaPrice(player);
+	}
+
+	private void givePlayerReward(Player player, List<LunaDiceItem> items) {
+		LunaDiceItem item = items.get(Rnd.get(1, items.size() - 1));
+
+		int rewardId = item.getItemId();
+		int rewardCount = item.getCount();
+
+		PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP(16, 1, rewardId, rewardCount));
+
+		ItemService.addItem(player, rewardId, rewardCount);
+	}
+
+	public void sendLunaPrice(Player player) {
+		if (!player.getPlayerLunaShop().isFreeUnderpath()) {
+			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 4, 45));
+		} if (!player.getPlayerLunaShop().isFreeFactory()) {
+			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 4, 45));
+		} if(!player.getPlayerLunaShop().isFreeChest()) {
+			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 1, 1));
+		}
+
+		if(player.isLunaGoldenDice()) {
+			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 7, 74));
 		} else {
-			player.setLunaDiceGameTry(player.getLunaDiceGameTry() + 1);
-			player.setLunaConsumePoint(player.getLunaConsumePoint() + lunaDicePrice(diceTry));
-			player.setLunaAccount((player.getLunaAccount() - lunaDicePrice(diceTry)));
-			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(0));
-			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 1, 79));
-			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP(15));
-			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(5));
-			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(4));
-		}
-		System.out.println("Random: " + random);
-		System.out.println("Try: " + player.getLunaDiceGameTry());
-		System.out.println("Consum: " + player.getLunaConsumePoint());
-	}
-
-	public void diceGameReward(Player player) { // TODO
-		ItemService.addItem(player, 162001014, 4);
-		PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP(16, 162001014, 4));
-		player.setLunaDiceGame(0, true);
-		player.setLunaDiceGameTry(0);
-		PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 1, 78));
-	}
-
-	public int lunaDicePrice(int diceTry) { // Done
-		switch (diceTry) {
-		case 0:
-			return 20;
-		case 1:
-			return 22;
-		case 2:
-			return 24;
-		case 3:
-			return 26;
-		case 4:
-		case 5:
-			return 30;
-		case 6:
-			return 32;
-		case 7:
-			return 36;
-		case 8:
-		case 9:
-			return 38;
-		case 10:
-			return 40;
-		default:
-			return 40;
+			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 7, 72));
 		}
 	}
 
