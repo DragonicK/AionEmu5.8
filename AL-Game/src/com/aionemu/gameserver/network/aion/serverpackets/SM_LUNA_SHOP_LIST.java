@@ -111,10 +111,10 @@ public class SM_LUNA_SHOP_LIST extends AionServerPacket {
 			}
 			break;
 		case 4:// munirunerk's keys
-			writeD(con.getActivePlayer().getMuniKeys());
+			writeD(con.getActivePlayer().getPlayerLunaShop().getMuniKeys());
 			break;
 		case 5:// luna consume point spent
-			writeD(con.getActivePlayer().getLunaConsumePoint());
+			writeD(con.getActivePlayer().getPlayerLunaShop().getLunaConsumePoint());
 			break;
 		case 6:// update taki's mission?
 			break;

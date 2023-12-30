@@ -18,19 +18,13 @@ package com.aionemu.gameserver.services.player;
 
 import java.sql.Timestamp;
 
+import com.aionemu.gameserver.dao.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.aionemu.commons.database.dao.DAOManager;
 import com.aionemu.gameserver.configs.main.AutoGroupConfig;
 import com.aionemu.gameserver.configs.main.GSConfig;
-import com.aionemu.gameserver.dao.EventItemsDAO;
-import com.aionemu.gameserver.dao.HouseObjectCooldownsDAO;
-import com.aionemu.gameserver.dao.ItemCooldownsDAO;
-import com.aionemu.gameserver.dao.PlayerCooldownsDAO;
-import com.aionemu.gameserver.dao.PlayerDAO;
-import com.aionemu.gameserver.dao.PlayerEffectsDAO;
-import com.aionemu.gameserver.dao.PlayerLifeStatsDAO;
 import com.aionemu.gameserver.model.account.PlayerAccountData;
 import com.aionemu.gameserver.model.gameobjects.player.Player;
 import com.aionemu.gameserver.model.items.storage.StorageType;
@@ -113,6 +107,8 @@ public class PlayerLeaveWorldService {
 		DAOManager.getDAO(HouseObjectCooldownsDAO.class).storeHouseObjectCooldowns(player);
 		DAOManager.getDAO(PlayerLifeStatsDAO.class).updatePlayerLifeStat(player);
 		DAOManager.getDAO(EventItemsDAO.class).storeItems(player);
+		// LUNA
+		LunaShopService.getInstance().onLogout(player);
 		// SHUGO SWEEP
 		ShugoSweepService.getInstance().onLogout(player);
 		PlayerGroupService.onPlayerLogout(player);
