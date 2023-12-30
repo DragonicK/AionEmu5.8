@@ -37,10 +37,10 @@ import java.sql.SQLException;
 public class MySQL5PlayerShugoSweepDAO extends PlayerShugoSweepDAO
 {
     private static final Logger log = LoggerFactory.getLogger(MySQL5PlayerLunaShopDAO.class);
-    public static final String ADD_QUERY = "INSERT INTO `player_shugo_sweep` (`player_id`, `free_dice`, `sweep_step`, `board_id`) VALUES (?,?,?,?)";
+    public static final String ADD_QUERY = "INSERT INTO `player_shugo_sweep` (`player_id`, `free_dice`, `sweep_step`, `board_id`, `golden_dice`, `sweep_reset`, `completed_steps`) VALUES (?,?,?,?,?,?,?)";
     public static final String SELECT_QUERY = "SELECT * FROM `player_shugo_sweep` WHERE `player_id`=?";
     public static final String DELETE_QUERY = "DELETE FROM `player_shugo_sweep`";
-    public static final String UPDATE_QUERY = "UPDATE player_shugo_sweep set `free_dice`=?, `sweep_step`=?, `board_id`=?, `golden_dice`=?, `sweep_reset`=? WHERE `player_id`=?";
+    public static final String UPDATE_QUERY = "UPDATE player_shugo_sweep set `free_dice`=?, `sweep_step`=?, `board_id`=?, `golden_dice`=?, `sweep_reset`=?, `completed_steps`=? WHERE `player_id`=?";
 	
     @Override
     public void load(Player player) {
@@ -56,11 +56,9 @@ public class MySQL5PlayerShugoSweepDAO extends PlayerShugoSweepDAO
                 int boardId = rset.getInt("board_id");
                 int goldenDice = rset.getInt("golden_dice");
                 int sweepReset = rset.getInt("sweep_reset");
+                int completedSteps = rset.getInt("completed_steps");
 
-                PlayerSweep ps = new PlayerSweep(step, dice, boardId);
-
-                ps.setGoldenDice(goldenDice);
-                ps.setResetBoard(sweepReset);
+                PlayerSweep ps = new PlayerSweep(step, dice, boardId, goldenDice, sweepReset, completedSteps);
 
                 ps.setPersistentState(PersistentState.UPDATED);
                 player.setPlayerShugoSweep(ps);
@@ -77,7 +75,7 @@ public class MySQL5PlayerShugoSweepDAO extends PlayerShugoSweepDAO
     }
 	
     @Override
-    public boolean add(final int playerId, final int dice, final int step, final int boardId) {
+    public boolean add(final int playerId, final int dice, final int step, final int boardId, final int goldenDice, final int sweepReset, final int completedSteps) {
         return DB.insertUpdate(ADD_QUERY, new IUStH() {
             @Override
             public void handleInsertUpdate(PreparedStatement ps) throws SQLException {
@@ -85,6 +83,9 @@ public class MySQL5PlayerShugoSweepDAO extends PlayerShugoSweepDAO
                 ps.setInt(2, dice);
                 ps.setInt(3, step);
                 ps.setInt(4, boardId);
+                ps.setInt(5, goldenDice);
+                ps.setInt(6, sweepReset);
+                ps.setInt(7, completedSteps);
                 ps.execute();
                 ps.close();
             }
@@ -140,7 +141,8 @@ public class MySQL5PlayerShugoSweepDAO extends PlayerShugoSweepDAO
             stmt.setInt(3, lr.getBoardId());
             stmt.setInt(4, lr.getGoldenDice());
             stmt.setInt(5, lr.getResetBoard());
-            stmt.setInt(6, player.getObjectId());
+            stmt.setInt(6, lr.getCompletedSteps());
+            stmt.setInt(7, player.getObjectId());
             stmt.addBatch();
             stmt.executeBatch();
             con.commit();
@@ -156,7 +158,7 @@ public class MySQL5PlayerShugoSweepDAO extends PlayerShugoSweepDAO
     }
 	
     @Override
-    public boolean setShugoSweepByObjId(int obj, final int freeDice, final int step, int boardId, int goldenDice, int resetSweep) {
+    public boolean setShugoSweepByObjId(int obj, final int freeDice, final int step, final int boardId, final int goldenDice, int resetSweep, final int completedSteps) {
         Connection con = null;
         try {
             con = DatabaseFactory.getConnection();
@@ -166,7 +168,8 @@ public class MySQL5PlayerShugoSweepDAO extends PlayerShugoSweepDAO
             stmt.setInt(3, boardId);
             stmt.setInt(4, goldenDice);
             stmt.setInt(5, resetSweep);
-            stmt.setInt(6, obj);
+            stmt.setInt(6, completedSteps);
+            stmt.setInt(7, obj);
             stmt.execute();
             stmt.close();
         }

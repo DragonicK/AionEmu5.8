@@ -65,10 +65,13 @@ public class ShugoSweepAction extends AbstractItemAction {
 				shugoSweep.setGoldenDice(shugoSweep.getGoldenDice() + 1);
 				player.sendMessage("You have received one Golden Dice");
 			}
+
+			int completedSteps = player.getPlayerShugoSweep().getCompletedSteps();
+
 			PacketSendUtility.sendPacket(player,
 					new SM_SHUGO_SWEEP(getPlayerSweep(player).getBoardId(), getPlayerSweep(player).getStep(),
 							getPlayerSweep(player).getFreeDice(), shugoSweep.getGoldenDice(),
-							shugoSweep.getResetBoard(), 0));
+							shugoSweep.getResetBoard(), 0, completedSteps));
 		}
 	}
 

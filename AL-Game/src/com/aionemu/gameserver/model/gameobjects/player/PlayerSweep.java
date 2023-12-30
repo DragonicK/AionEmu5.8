@@ -36,11 +36,15 @@ public class PlayerSweep {
 	private int boardId;
 	private int goldenDice;
 	private int resetBoard;
+	private int completedSteps;
 
-	public PlayerSweep(int step, int freeDice, int boardId) {
+	public PlayerSweep(int step, int freeDice, int boardId, int goldenDice, int resetBoard, int completedSteps) {
 		this.step = step;
 		this.freeDice = freeDice;
 		this.boardId = boardId;
+		this.goldenDice = goldenDice;
+		this.resetBoard = resetBoard;
+		this.completedSteps = completedSteps;
 		this.persistentState = PersistentState.NEW;
 	}
 
@@ -87,13 +91,21 @@ public class PlayerSweep {
 		this.boardId = boardId;
 	}
 
+	public int getCompletedSteps() {
+		return this.completedSteps;
+	}
+
+	public void setCompletedSteps(int steps) {
+		this.completedSteps = steps;
+	}
+
 	public PersistentState getPersistentState() {
 		return persistentState;
 	}
 
 	public void setShugoSweepByObjId(int playerId) {
 		DAOManager.getDAO(PlayerShugoSweepDAO.class).setShugoSweepByObjId(playerId, getFreeDice(), getStep(),
-				getBoardId(), getGoldenDice(), getResetBoard());
+				getBoardId(), getGoldenDice(), getResetBoard(), getCompletedSteps());
 	}
 
 	public void setPersistentState(PersistentState persistentState) {
