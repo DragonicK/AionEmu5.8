@@ -349,7 +349,6 @@ public class Player extends Creature {
 	//Luna Dice Parts
 	private int lunaDiceCount;
 	private boolean lunaGoldenDice;
-	private int lunaDiceReward;
 
 	public long getCreationDate() {
 		Timestamp creationDate = playerCommonData.getCreationDate();
@@ -3410,11 +3409,4 @@ public class Player extends Creature {
 		this.lunaGoldenDice = lunaGoldenDice;
 	}
 
-	public int getLunaDiceReward() {
-		return lunaDiceReward;
-	}
-
-	public void setLunaDiceReward(int lunaDiceReward) {
-		this.lunaDiceReward = lunaDiceReward;
-	}
 }

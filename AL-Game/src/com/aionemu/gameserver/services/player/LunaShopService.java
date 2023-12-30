@@ -650,7 +650,6 @@ public class LunaShopService {
 
 		int rndSuccess = Rnd.get(1, 100);
 		int diceCount = player.getLunaDiceCount();
-		int diceReward = player.getLunaDiceReward();
 
 		if (player.getLunaDiceCount() < 5) {
 			int randomNumber = Rnd.get(1, 5);
@@ -660,7 +659,6 @@ public class LunaShopService {
 					if (rndSuccess <= LunaConfig.LUNA_DICE_RATE_1) {
 						if (diceCount <= 1) {
 							player.setLunaDiceCount(1);
-							diceReward = LunaConfig.LUNA_DICE_1;
 						}
 					}
 					break;
@@ -669,7 +667,6 @@ public class LunaShopService {
 					if (rndSuccess <= LunaConfig.LUNA_DICE_RATE_2) {
 						if (diceCount <= 2) {
 							player.setLunaDiceCount(2);
-							diceReward = LunaConfig.LUNA_DICE_2;
 						}
 					}
 					break;
@@ -677,7 +674,6 @@ public class LunaShopService {
 					if (rndSuccess <= LunaConfig.LUNA_DICE_RATE_3) {
 						if (diceCount <= 3) {
 							player.setLunaDiceCount(3);
-							diceReward = LunaConfig.LUNA_DICE_3;
 						}
 					}
 					break;
@@ -685,7 +681,6 @@ public class LunaShopService {
 					if (rndSuccess <= LunaConfig.LUNA_DICE_RATE_4) {
 						if (diceCount <= 4) {
 							player.setLunaDiceCount(4);
-							diceReward = LunaConfig.LUNA_DICE_4;
 						}
 					}
 					break;
@@ -694,42 +689,36 @@ public class LunaShopService {
 						if (diceCount <= 5) {
 							player.setLunaGoldenDice(true);
 							player.setLunaDiceCount(5);
-							diceReward = LunaConfig.LUNA_DICE_5;
 						}
 					}
 					break;
 			}
 		}
 		else {
-			boolean isFailed = false;
+			boolean isFailed = true;
 
-			if (rndSuccess <= LunaConfig.LUNA_DICE_RATE_5) {
-				int rndGolden = Rnd.get(1, 100);
+			int rndGolden = Rnd.get(1, 100);
+
+			// Try to roll Dice 7.
+			if (rndGolden <= LunaConfig.LUNA_DICE_RATE_7) {
+				player.setLunaDiceCount(7);
+				isFailed = false;
+			}
+
+			// If dice 7 failed, now we try 6.
+			if (isFailed) {
+				rndGolden = Rnd.get(1, 100);
 
 				if (rndGolden <= LunaConfig.LUNA_DICE_RATE_6) {
-					if (diceCount <= 6) {
-						player.setLunaDiceCount(6);
-						diceReward = LunaConfig.LUNA_DICE_6;
-					}
-                } else if (rndGolden <= LunaConfig.LUNA_DICE_RATE_7) {
-					if (diceCount <= 7) {
-						player.setLunaDiceCount(7);
-						diceReward = LunaConfig.LUNA_DICE_7;
-					}
-                }
-				else {
-					isFailed = true;
+					player.setLunaDiceCount(6);
+					isFailed = false;
 				}
-
-				isDiceFinish = true;
-            }  else {
-				isFailed = true;
-				isDiceFinish = true;
 			}
+
+			isDiceFinish = true;
 
 			if (isFailed) {
 				player.setLunaDiceCount(5);
-				diceReward = LunaConfig.LUNA_GOLDEN_DICE_FAIL;
 			}
 		}
 
@@ -741,8 +730,6 @@ public class LunaShopService {
 		// 5 = Count 1 # level 3 box
 		// 6 = Count 1 # level 4 box
 		// 7 = Count 1 # level 5 box
-
-		player.setLunaDiceReward(diceReward);
 
 		PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP(15, isDiceFinish));
 
@@ -756,7 +743,6 @@ public class LunaShopService {
 		List<LunaDiceItem> items = null;
 
 		player.setLunaDiceCount(0);
-		player.setLunaDiceReward(0);
 		player.setLunaGoldenDice(false);
 
 		PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP(16, true));
