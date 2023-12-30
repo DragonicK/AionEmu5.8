@@ -192,7 +192,7 @@ public class SM_LUNA_SHOP extends AionServerPacket {
 			break;
 		case 15:
 			writeC(0);
-			writeC(player.getLunaDiceCount());
+			writeC(player.getPlayerLunaShop().getLunaDiceCount());
 			writeC(0);
 			writeC(isSuccessDice ? 1 : 0);
 			writeC(1);

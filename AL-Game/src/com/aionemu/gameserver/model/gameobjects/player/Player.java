@@ -346,9 +346,7 @@ public class Player extends Creature {
 	// This variables are for the custom RP and GM system
 	private boolean isGmMode = false;
 	private long creationDay;
-	//Luna Dice Parts
-	private int lunaDiceCount;
-	private boolean lunaGoldenDice;
+
 
 	public long getCreationDate() {
 		Timestamp creationDate = playerCommonData.getCreationDate();
@@ -2960,30 +2958,6 @@ public class Player extends Creature {
 		return this.authorizeBoost;
 	}
 
-	public void setLunaConsumePoint(int point) {
-		this.playerCommonData.setLunaConsumePoint(point);
-	}
-
-	public int getLunaConsumePoint() {
-		return this.playerCommonData.getLunaConsumePoint();
-	}
-
-	public void setMuniKeys(int keys) {
-		this.playerCommonData.setMuniKeys(keys);
-	}
-
-	public int getMuniKeys() {
-		return this.playerCommonData.getMuniKeys();
-	}
-
-	public void setLunaConsumeCount(int count) {
-		this.playerCommonData.setLunaConsumeCount(count);
-	}
-
-	public int getLunaConsumeCount() {
-		return this.playerCommonData.getLunaConsumeCount();
-	}
-
 	public void setLunaAccount(long luna) {
 		if (LoginServer.getInstance().sendPacket(new SM_ACCOUNT_TOLL_INFO(
 				this.getClientConnection().getAccount().getToll(), luna, this.getAcountName()))) {
@@ -2997,13 +2971,6 @@ public class Player extends Creature {
 		return this.getClientConnection().getAccount().getLuna();
 	}
 
-	public void setWardrobeSlot(int slot) {
-		this.playerCommonData.setWardrobeSlot(slot);
-	}
-
-	public int getWardrobeSlot() {
-		return this.playerCommonData.getWardrobeSlot();
-	}
 
 	public void addItemMaxCountOfDay(int itemId, int thisCount) {
 		if (maxCountEvent == null) {
@@ -3393,20 +3360,6 @@ public class Player extends Creature {
 		this.disassemblyItemLists = disassemblyItemLists;
 	}
 
-	public int getLunaDiceCount() {
-		return lunaDiceCount;
-	}
 
-	public void setLunaDiceCount(int lunaDiceCount) {
-		this.lunaDiceCount = lunaDiceCount;
-	}
-
-	public boolean isLunaGoldenDice() {
-		return lunaGoldenDice;
-	}
-
-	public void setLunaGoldenDice(boolean lunaGoldenDice) {
-		this.lunaGoldenDice = lunaGoldenDice;
-	}
 
 }

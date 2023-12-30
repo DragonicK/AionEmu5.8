@@ -90,10 +90,6 @@ public class PlayerCommonData extends VisibleObjectTemplate {
 	private int stoneCreativityPoint;
 	private int joinRequestLegionId = 0;
 	private LegionJoinRequestState joinRequestState = LegionJoinRequestState.NONE;
-	private int lunaConsumePoint;
-	private int muni_keys;
-	private int consumeCount = 0;
-	private int wardrobeSlot;
 	private PlayerUpgradeArcade upgradeArcade;
 	// Aura Of Growth 5.0
 	private long auraOfGrowth;
@@ -831,38 +827,6 @@ public class PlayerCommonData extends VisibleObjectTemplate {
 
 	public void setJoinRequestState(LegionJoinRequestState joinRequestState) {
 		this.joinRequestState = joinRequestState;
-	}
-
-	public void setLunaConsumePoint(int point) {
-		this.lunaConsumePoint = point;
-	}
-
-	public int getLunaConsumePoint() {
-		return lunaConsumePoint;
-	}
-
-	public void setMuniKeys(int keys) {
-		this.muni_keys = keys;
-	}
-
-	public int getMuniKeys() {
-		return muni_keys;
-	}
-
-	public void setLunaConsumeCount(int count) {
-		this.consumeCount = count;
-	}
-
-	public int getLunaConsumeCount() {
-		return consumeCount;
-	}
-
-	public void setWardrobeSlot(int slot) {
-		this.wardrobeSlot = slot;
-	}
-
-	public int getWardrobeSlot() {
-		return wardrobeSlot;
 	}
 
 	public PlayerUpgradeArcade getUpgradeArcade() {

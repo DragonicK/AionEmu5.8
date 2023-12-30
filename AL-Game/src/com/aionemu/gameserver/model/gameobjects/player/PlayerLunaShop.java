@@ -23,6 +23,8 @@ import com.aionemu.commons.database.dao.DAOManager;
 import com.aionemu.gameserver.dao.PlayerLunaShopDAO;
 import com.aionemu.gameserver.model.gameobjects.PersistentState;
 
+import java.sql.Connection;
+
 /**
  * Created by wanke on 13/02/2017.
  */
@@ -34,6 +36,14 @@ public class PlayerLunaShop {
 	private boolean FreeUnderpath;
 	private boolean FreeFactory;
 	private boolean FreeChest;
+
+	//Luna Dice Parts
+	private int lunaDiceCount;
+	private boolean lunaGoldenDice;
+	private int lunaConsumePoint;
+	private int muni_keys;
+	private int consumeCount = 0;
+	private int wardrobeSlot;
 
 	public PlayerLunaShop(boolean freeUnderpath, boolean freeFactory, boolean freeChest) {
 		this.FreeUnderpath = freeUnderpath;
@@ -75,7 +85,56 @@ public class PlayerLunaShop {
 
 	public void setLunaShopByObjId(int playerId) {
 		DAOManager.getDAO(PlayerLunaShopDAO.class).setLunaShopByObjId(playerId, isFreeUnderpath(), isFreeFactory(),
-				isFreeChest());
+				isFreeChest(), getLunaConsumePoint(), getLunaConsumeCount(), getWardrobeSlot(), getMuniKeys(),
+				getLunaDiceCount(), isLunaGoldenDice());
+	}
+
+	public int getLunaDiceCount() {
+		return lunaDiceCount;
+	}
+
+	public void setLunaDiceCount(int lunaDiceCount) {
+		this.lunaDiceCount = lunaDiceCount;
+	}
+
+	public boolean isLunaGoldenDice() {
+		return lunaGoldenDice;
+	}
+
+	public void setLunaGoldenDice(boolean lunaGoldenDice) {
+		this.lunaGoldenDice = lunaGoldenDice;
+	}
+
+	public void setLunaConsumePoint(int point) {
+		this.lunaConsumePoint = point;
+	}
+
+	public int getLunaConsumePoint() {
+		return this.lunaConsumePoint;
+	}
+
+	public void setMuniKeys(int keys) {
+		this.muni_keys = keys;
+	}
+
+	public int getMuniKeys() {
+		return this.muni_keys;
+	}
+
+	public void setLunaConsumeCount(int count) {
+		this.consumeCount = count;
+	}
+
+	public int getLunaConsumeCount() {
+		return this.consumeCount;
+	}
+
+	public void setWardrobeSlot(int slot) {
+		this.wardrobeSlot = slot;
+	}
+
+	public int getWardrobeSlot() {
+		return this.wardrobeSlot;
 	}
 
 	public void setPersistentState(PersistentState persistentState) {

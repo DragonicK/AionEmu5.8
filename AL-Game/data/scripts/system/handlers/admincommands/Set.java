@@ -212,7 +212,7 @@ public class Set extends AdminCommand
 				PacketSendUtility.sendMessage(admin, "You should enter valid second params!");
 				return;
 			}
-			LunaShopService.getInstance().muniKeysController(target, target.getMuniKeys() + key);
+			LunaShopService.getInstance().muniKeysController(target, target.getPlayerLunaShop().getMuniKeys() + key);
 			if (target == admin) {
 				PacketSendUtility.sendMessage(admin, "Add your <Munirunerk's Keys> + " + key + ".");
 			} else {

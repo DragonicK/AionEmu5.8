@@ -37,10 +37,10 @@ import java.sql.SQLException;
 public class MySQL5PlayerLunaShopDAO extends PlayerLunaShopDAO {
 
     private static final Logger log = LoggerFactory.getLogger(MySQL5PlayerLunaShopDAO.class);
-    public static final String ADD_QUERY = "INSERT INTO `player_luna_shop` (`player_id`, `free_under`, `free_munition`, `free_chest`) VALUES (?,?,?,?)";
+    public static final String ADD_QUERY = "INSERT INTO `player_luna_shop` (`player_id`, `free_under`, `free_munition`, `free_chest`, `luna_consume`, `luna_consume_count`, `wardrobe_slot`, `muni_keys`, `dice_count`, `is_golden_dice`) VALUES (?,?,?,?,?,?,?,?,?,?)";
     public static final String SELECT_QUERY = "SELECT * FROM `player_luna_shop` WHERE `player_id`=?";
     public static final String DELETE_QUERY = "DELETE FROM `player_luna_shop`";
-    public static final String UPDATE_QUERY = "UPDATE player_luna_shop set `free_under`=?, `free_munition`=?, `free_chest`=? WHERE `player_id`=?";
+    public static final String UPDATE_QUERY = "UPDATE player_luna_shop set `free_under`=?, `free_munition`=?, `free_chest`=?, `luna_consume`=?, `luna_consume_count`=?, `wardrobe_slot`=?, `muni_keys`=?, `dice_count`=?, `is_golden_dice`=? WHERE `player_id`=?";
 
     @Override
     public void load(Player player) {
@@ -54,7 +54,22 @@ public class MySQL5PlayerLunaShopDAO extends PlayerLunaShopDAO {
                 boolean under = rset.getBoolean("free_under");
                 boolean factory = rset.getBoolean("free_munition");
                 boolean chest = rset.getBoolean("free_chest");
+                int lunaConsume = rset.getInt("luna_consume");
+                int muniKeys = rset.getInt("muni_keys");
+                int lunaConsumeCount = rset.getInt("luna_consume_count");
+                int wardrobeSlot = rset.getInt("wardrobe_slot");
+                int diceCount = rset.getInt("dice_count");
+                boolean isGoldenDice = rset.getBoolean("is_golden_dice");
+
                 PlayerLunaShop pls = new PlayerLunaShop(under, factory, chest);
+
+                pls.setMuniKeys(muniKeys);
+                pls.setLunaConsumePoint(lunaConsume);
+                pls.setLunaConsumeCount(lunaConsumeCount);
+                pls.setWardrobeSlot(wardrobeSlot);
+                pls.setLunaDiceCount(diceCount);
+                pls.setLunaGoldenDice(isGoldenDice);
+
                 pls.setPersistentState(PersistentState.UPDATED);
                 player.setPlayerLunaShop(pls);
             }
@@ -70,7 +85,8 @@ public class MySQL5PlayerLunaShopDAO extends PlayerLunaShopDAO {
     }
 
     @Override
-    public boolean add(final int playerId, final boolean freeUnderpath, final boolean freeFactory, final boolean freeChest) {
+    public boolean add(final int playerId, final boolean freeUnderpath, final boolean freeFactory, final boolean freeChest,
+                       final int lunaConsume, final int lunaConsumeCount, final int wardrobeSlot, final int muniKeys, final int diceCount, final boolean isGoldenDice) {
         return DB.insertUpdate(ADD_QUERY, new IUStH() {
             @Override
             public void handleInsertUpdate(PreparedStatement ps) throws SQLException {
@@ -78,6 +94,12 @@ public class MySQL5PlayerLunaShopDAO extends PlayerLunaShopDAO {
                 ps.setBoolean(2, freeUnderpath);
                 ps.setBoolean(3, freeFactory);
                 ps.setBoolean(4, freeChest);
+                ps.setInt(5, lunaConsume);
+                ps.setInt(6, lunaConsumeCount);
+                ps.setInt(7, wardrobeSlot);
+                ps.setInt(8, muniKeys);
+                ps.setInt(9, diceCount);
+                ps.setBoolean(10, isGoldenDice);
                 ps.execute();
                 ps.close();
             }
@@ -131,7 +153,13 @@ public class MySQL5PlayerLunaShopDAO extends PlayerLunaShopDAO {
             stmt.setBoolean(1, lr.isFreeUnderpath());
             stmt.setBoolean(2, lr.isFreeFactory());
             stmt.setBoolean(3, lr.isFreeChest());
-            stmt.setInt(4, player.getObjectId());
+            stmt.setInt(4, lr.getLunaConsumePoint());
+            stmt.setInt(5, lr.getLunaConsumeCount());
+            stmt.setInt(6, lr.getWardrobeSlot());
+            stmt.setInt(7, lr.getMuniKeys());
+            stmt.setInt(8, lr.getLunaDiceCount());
+            stmt.setBoolean(9, lr.isLunaGoldenDice());
+            stmt.setInt(10, player.getObjectId());
             stmt.addBatch();
             stmt.executeBatch();
             con.commit();
@@ -147,7 +175,8 @@ public class MySQL5PlayerLunaShopDAO extends PlayerLunaShopDAO {
     }
 
     @Override
-    public boolean setLunaShopByObjId(int obj, final boolean freeUnderpath, final boolean freeFactory, final boolean freeChest) {
+    public boolean setLunaShopByObjId(final int obj, boolean freeUnderpath, boolean freeFactory,
+                                      final boolean freeChest, final int lunaConsume, final int lunaConsumeCount, final int wardrobeSlot, final int muniKeys, final int diceCount, final boolean isGoldenDice) {
         Connection con = null;
         try {
             con = DatabaseFactory.getConnection();
@@ -155,7 +184,13 @@ public class MySQL5PlayerLunaShopDAO extends PlayerLunaShopDAO {
             stmt.setBoolean(1, freeUnderpath);
             stmt.setBoolean(2, freeFactory);
             stmt.setBoolean(3, freeChest);
-            stmt.setInt(4, obj);
+            stmt.setInt(4, lunaConsume);
+            stmt.setInt(5, lunaConsumeCount);
+            stmt.setInt(6, wardrobeSlot);
+            stmt.setInt(7, muniKeys);
+            stmt.setInt(8, diceCount);
+            stmt.setBoolean(9, isGoldenDice);
+            stmt.setInt(10, obj);
             stmt.execute();
             stmt.close();
         }
