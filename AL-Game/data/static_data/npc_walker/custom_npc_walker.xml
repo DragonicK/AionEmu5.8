@@ -257,17 +257,6 @@
         <routestep step="9" z="160.28148" y="215.40446" x="234.51546"/>
         <routestep step="10" z="164.60033" y="185.57587" x="235.36935" rest_time="7200000"/>
 	</walker_template>
-	
-	<!-- SECRET MUNITION FACTORY 5.1 -->
-	<walker_template route_id="MunitionFactory1" pool="1">
-		<routestep step="1" z="191.9408" y="229.32593" x="133.43279"/>
-        <routestep step="2" z="192.12093" y="259.25415" x="163.12567" rest_time="7200000"/>
-	</walker_template>
-	<walker_template route_id="MunitionFactory2" pool="1">
-		<routestep step="1" z="191.98645" y="289.5833" x="132.8395"/>
-        <routestep step="2" z="192.11478" y="259.54025" x="163.57658" rest_time="7200000"/>
-	</walker_template>
-	
 	<!-- TRIALS OF ETERNITY 5.6 -->
 	<walker_template route_id="3015600001" pool="1">
 		<routestep step="1" x="836.23956" y="1328.475" z="735.8319"/>
