@@ -40,7 +40,7 @@ public class MySQL5PlayerShugoSweepDAO extends PlayerShugoSweepDAO
     public static final String ADD_QUERY = "INSERT INTO `player_shugo_sweep` (`player_id`, `free_dice`, `sweep_step`, `board_id`) VALUES (?,?,?,?)";
     public static final String SELECT_QUERY = "SELECT * FROM `player_shugo_sweep` WHERE `player_id`=?";
     public static final String DELETE_QUERY = "DELETE FROM `player_shugo_sweep`";
-    public static final String UPDATE_QUERY = "UPDATE player_shugo_sweep set `free_dice`=?, `sweep_step`=?, `board_id`=? WHERE `player_id`=?";
+    public static final String UPDATE_QUERY = "UPDATE player_shugo_sweep set `free_dice`=?, `sweep_step`=?, `board_id`=?, `golden_dice`=?, `sweep_reset`=? WHERE `player_id`=?";
 	
     @Override
     public void load(Player player) {
@@ -54,7 +54,14 @@ public class MySQL5PlayerShugoSweepDAO extends PlayerShugoSweepDAO
                 int dice = rset.getInt("free_dice");
                 int step = rset.getInt("sweep_step");
                 int boardId = rset.getInt("board_id");
+                int goldenDice = rset.getInt("golden_dice");
+                int sweepReset = rset.getInt("sweep_reset");
+
                 PlayerSweep ps = new PlayerSweep(step, dice, boardId);
+
+                ps.setGoldenDice(goldenDice);
+                ps.setResetBoard(sweepReset);
+
                 ps.setPersistentState(PersistentState.UPDATED);
                 player.setPlayerShugoSweep(ps);
             }
@@ -131,7 +138,9 @@ public class MySQL5PlayerShugoSweepDAO extends PlayerShugoSweepDAO
             stmt.setInt(1, lr.getFreeDice());
             stmt.setInt(2, lr.getStep());
             stmt.setInt(3, lr.getBoardId());
-            stmt.setInt(4, player.getObjectId());
+            stmt.setInt(4, lr.getGoldenDice());
+            stmt.setInt(5, lr.getResetBoard());
+            stmt.setInt(6, player.getObjectId());
             stmt.addBatch();
             stmt.executeBatch();
             con.commit();
@@ -147,7 +156,7 @@ public class MySQL5PlayerShugoSweepDAO extends PlayerShugoSweepDAO
     }
 	
     @Override
-    public boolean setShugoSweepByObjId(int obj, final int freeDice, final int step, int boardId) {
+    public boolean setShugoSweepByObjId(int obj, final int freeDice, final int step, int boardId, int goldenDice, int resetSweep) {
         Connection con = null;
         try {
             con = DatabaseFactory.getConnection();
@@ -155,7 +164,9 @@ public class MySQL5PlayerShugoSweepDAO extends PlayerShugoSweepDAO
             stmt.setInt(1, freeDice);
             stmt.setInt(2, step);
             stmt.setInt(3, boardId);
-            stmt.setInt(4, obj);
+            stmt.setInt(4, goldenDice);
+            stmt.setInt(5, resetSweep);
+            stmt.setInt(6, obj);
             stmt.execute();
             stmt.close();
         }
