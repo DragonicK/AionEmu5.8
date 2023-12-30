@@ -34,9 +34,20 @@ public class LunaDiceTable {
 	@XmlElement(name = "reward")
 	private List<LunaDiceItem> lunaDiceTabItem;
 
+	@XmlElement(name = "name")
+	private String name;
+
+	@XmlElement(name = "group_name")
+	private String groupName;
+
+	@XmlElement(name = "reward_total")
+	private int rewardTotal;
+
 	public int getId() {
 		return id;
 	}
+
+	public int getRewardTotal() { return rewardTotal; }
 
 	public List<LunaDiceItem> getLunaDiceTabItems() {
 		return lunaDiceTabItem;

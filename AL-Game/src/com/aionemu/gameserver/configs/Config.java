@@ -18,6 +18,7 @@ package com.aionemu.gameserver.configs;
 
 import java.util.Properties;
 
+import com.aionemu.gameserver.configs.main.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,47 +28,6 @@ import com.aionemu.commons.configuration.ConfigurableProcessor;
 import com.aionemu.commons.utils.PropertiesUtils;
 import com.aionemu.gameserver.configs.administration.AdminConfig;
 import com.aionemu.gameserver.configs.administration.DeveloperConfig;
-import com.aionemu.gameserver.configs.main.AIConfig;
-import com.aionemu.gameserver.configs.main.AStationConfig;
-import com.aionemu.gameserver.configs.main.AbyssLandingConfig;
-import com.aionemu.gameserver.configs.main.AdvCustomConfig;
-import com.aionemu.gameserver.configs.main.ArchDaevaConfig;
-import com.aionemu.gameserver.configs.main.AutoGroupConfig;
-import com.aionemu.gameserver.configs.main.BrokerConfig;
-import com.aionemu.gameserver.configs.main.CacheConfig;
-import com.aionemu.gameserver.configs.main.CleaningConfig;
-import com.aionemu.gameserver.configs.main.CraftConfig;
-import com.aionemu.gameserver.configs.main.CustomConfig;
-import com.aionemu.gameserver.configs.main.DropConfig;
-import com.aionemu.gameserver.configs.main.EnchantsConfig;
-import com.aionemu.gameserver.configs.main.EventsConfig;
-import com.aionemu.gameserver.configs.main.FFAConfig;
-import com.aionemu.gameserver.configs.main.FallDamageConfig;
-import com.aionemu.gameserver.configs.main.GSConfig;
-import com.aionemu.gameserver.configs.main.GeoDataConfig;
-import com.aionemu.gameserver.configs.main.GroupConfig;
-import com.aionemu.gameserver.configs.main.HTMLConfig;
-import com.aionemu.gameserver.configs.main.HousingConfig;
-import com.aionemu.gameserver.configs.main.InGameShopConfig;
-import com.aionemu.gameserver.configs.main.LegionConfig;
-import com.aionemu.gameserver.configs.main.LoggingConfig;
-import com.aionemu.gameserver.configs.main.MembershipConfig;
-import com.aionemu.gameserver.configs.main.NameConfig;
-import com.aionemu.gameserver.configs.main.PeriodicSaveConfig;
-import com.aionemu.gameserver.configs.main.PlayerTransferConfig;
-import com.aionemu.gameserver.configs.main.PricesConfig;
-import com.aionemu.gameserver.configs.main.PunishmentConfig;
-import com.aionemu.gameserver.configs.main.PvPConfig;
-import com.aionemu.gameserver.configs.main.PvPModConfig;
-import com.aionemu.gameserver.configs.main.RankingConfig;
-import com.aionemu.gameserver.configs.main.RateConfig;
-import com.aionemu.gameserver.configs.main.SecurityConfig;
-import com.aionemu.gameserver.configs.main.ShutdownConfig;
-import com.aionemu.gameserver.configs.main.SiegeConfig;
-import com.aionemu.gameserver.configs.main.ThreadConfig;
-import com.aionemu.gameserver.configs.main.VeteranRewardConfig;
-import com.aionemu.gameserver.configs.main.WeddingsConfig;
-import com.aionemu.gameserver.configs.main.WorldConfig;
 import com.aionemu.gameserver.configs.network.IPConfig;
 import com.aionemu.gameserver.configs.network.NetworkConfig;
 
@@ -133,6 +93,7 @@ public class Config {
 			ConfigurableProcessor.process(FFAConfig.class, mainProps);
 			ConfigurableProcessor.process(ArchDaevaConfig.class, mainProps);
 			ConfigurableProcessor.process(VeteranRewardConfig.class, mainProps);
+			ConfigurableProcessor.process(LunaConfig.class, mainProps);
 			String network = "./config/network";
 			Properties[] networkProps = PropertiesUtils.loadAllFromDirectory(network);
 			PropertiesUtils.overrideProperties(networkProps, myProps);
@@ -204,6 +165,7 @@ public class Config {
 			ConfigurableProcessor.process(FFAConfig.class, mainProps);
 			ConfigurableProcessor.process(ArchDaevaConfig.class, mainProps);
 			ConfigurableProcessor.process(VeteranRewardConfig.class, mainProps);
+			ConfigurableProcessor.process(LunaConfig.class, mainProps);
 		} catch (Exception e) {
 			log.error("Can't reload configuration: ", e);
 			throw new Error("Can't reload configuration: ", e);

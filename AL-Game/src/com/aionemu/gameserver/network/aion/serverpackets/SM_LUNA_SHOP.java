@@ -48,6 +48,8 @@ public class SM_LUNA_SHOP extends AionServerPacket {
 	private int itemSize;
 	private boolean success;
 	private long itemCount;
+	private int rewardCount;
+	private boolean isSuccessDice;
 
 	public SM_LUNA_SHOP(int actionId) {
 		this.actionId = actionId;
@@ -94,10 +96,16 @@ public class SM_LUNA_SHOP extends AionServerPacket {
 		this.fail = fail;
 	}
 
-	public SM_LUNA_SHOP(int actionId, int itemId, long itemCount) {
+	public SM_LUNA_SHOP(int actionId, int rewardCount, int itemId, long itemCount) {
 		this.actionId = actionId;
+		this.rewardCount = rewardCount;
 		this.itemId = itemId;
 		this.itemCount = itemCount;
+	}
+
+	public SM_LUNA_SHOP(int actionId, boolean isSuccessDice) {
+		this.actionId = actionId;
+		this.isSuccessDice = isSuccessDice;
 	}
 
 	@Override
@@ -182,16 +190,16 @@ public class SM_LUNA_SHOP extends AionServerPacket {
 			writeC(1); // free enter = 1
 			writeD(indun_id);
 			break;
-		case 15: // TODO Golden Dice
-			int dice = player.getLunaDiceGame();
+		case 15:
 			writeC(0);
-			writeC(dice);
+			writeC(player.getLunaDiceCount());
 			writeC(0);
-			writeC(0);
+			writeC(isSuccessDice ? 1 : 0);
+			writeC(1);
 			break;
-		case 16: // TODO Display Bug
+		case 16:
 			writeC(0);
-			writeH(1);
+			writeH(rewardCount);
 			writeD(itemId); // ItemId
 			writeQ(itemCount); // Item Count
 			break;

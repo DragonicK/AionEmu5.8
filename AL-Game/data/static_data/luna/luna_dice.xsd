@@ -14,6 +14,9 @@
                 <xs:element maxOccurs="unbounded" ref="reward"/>
             </xs:sequence>
             <xs:attribute name="id" use="required" type="xs:integer"/>
+            <xs:attribute name="name" use="optional" type="xs:string"/>
+            <xs:attribute name="group_name" use="optional" type="xs:string"/>
+            <xs:attribute name="reward_total" use="required" type="xs:integer"/>
         </xs:complexType>
     </xs:element>
     <xs:element name="reward">
