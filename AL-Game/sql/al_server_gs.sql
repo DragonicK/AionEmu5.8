@@ -751,12 +751,7 @@ CREATE TABLE `players` (
   `join_legion_id` int(11) NOT NULL DEFAULT '0',
   `join_state` enum('NONE','DENIED','ACCEPTED') NOT NULL DEFAULT 'NONE',
   `berdin_star` bigint(30) NOT NULL DEFAULT '0',
-  `luna_consume` int(11) NOT NULL DEFAULT '0',
-  `muni_keys` int(11) NOT NULL DEFAULT '0',
-  `luna_consume_count` int(11) NOT NULL DEFAULT '0',
-  `wardrobe_slot` int(11) NOT NULL DEFAULT '2',
   `abyss_favor` bigint(30) DEFAULT '0',
-  `luna_points` int(11) DEFAULT '0',
   `frenzy_points` int(4) DEFAULT '0',
   `frenzy_count` int(1) DEFAULT '0',
   `toc_floor` int(11) DEFAULT '0',
@@ -1059,7 +1054,13 @@ CREATE TABLE `player_luna_shop` (
   `player_id` int(10) NOT NULL,
   `free_under` tinyint(1) NOT NULL,
   `free_munition` tinyint(1) NOT NULL,
-  `free_chest` tinyint(1) NOT NULL
+  `free_chest` tinyint(1) NOT NULL,
+  `luna_consume` int(11) NOT NULL DEFAULT '0',
+  `luna_consume_count` int(11) NOT NULL DEFAULT '0',
+  `wardrobe_slot` int(10) NOT NULL DEFAULT '2',
+  `muni_keys` int(11) NOT NULL DEFAULT '0',
+  `dice_count` int(10) NOT NULL DEFAULT '0',
+  `is_golden_dice` tinyint(1) NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- ----------------------------
@@ -1267,7 +1268,8 @@ CREATE TABLE `player_shugo_sweep` (
   `sweep_step` int(10) NOT NULL DEFAULT '0',
   `board_id` int(10) NOT NULL DEFAULT '0',
   `golden_dice` int(10) NOT NULL DEFAULT '0',
-  `sweep_reset` int(1) NOT NULL DEFAULT '0'
+  `sweep_reset` int(1) NOT NULL DEFAULT '0',
+  `completed_steps` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`player_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
