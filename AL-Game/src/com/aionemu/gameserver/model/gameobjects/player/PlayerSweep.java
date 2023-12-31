@@ -48,9 +48,6 @@ public class PlayerSweep {
 		this.persistentState = PersistentState.NEW;
 	}
 
-	public PlayerSweep() {
-	}
-
 	public int getFreeDice() {
 		return freeDice;
 	}
