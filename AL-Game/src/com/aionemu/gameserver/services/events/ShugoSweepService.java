@@ -47,17 +47,16 @@ public class ShugoSweepService {
 	private final int boardId = EventsConfig.EVENT_SHUGOSWEEP_BOARD;
 	private final static int MaximumShugoRewards = 30;
 
-	public ShugoSweepService() {
+	public void initShugoSweep() {
+		log.info("[ShugoSweepService] is initialized...");
+
 		int value = 1;
 
 		for (int i = 1; i <= MaximumShugoRewards; i++) {
 			value *= 2;
 			RewardsBitwise.put(i, value);
 		}
-	}
 
-	public void initShugoSweep() {
-		log.info("[ShugoSweepService] is initialized...");
 		// TODO
 		// String weekly = "0 0 9 ? * WED *";
 	}
@@ -103,10 +102,8 @@ public class ShugoSweepService {
 	public void launchDice(final Player player) {
 		int move = Rnd.get(1, 6);
 		int step = getPlayerSweep(player).getStep();
-		int newStep = step + move;
 		int dice = getPlayerSweep(player).getFreeDice();
 		int goldDice = player.getPlayerShugoSweep().getGoldenDice();
-		int diff = newStep - 30;
 
 		if (getPlayerSweep(player).getFreeDice() != 0) {
 			getPlayerSweep(player).setFreeDice(dice - 1);
@@ -118,70 +115,47 @@ public class ShugoSweepService {
 
 		int completedSteps = player.getPlayerShugoSweep().getCompletedSteps();
 
+		int positions = move;
+		int pointer = step;
+		int maxTry = 0;
+
+		do {
+			if (pointer == 30) {
+				pointer = 0;
+			}
+
+			int bitwise = RewardsBitwise.get(pointer + 1);
+
+			if ((completedSteps & bitwise) != bitwise) {
+				positions--;
+			}
+
+			pointer++;
+
+			if (pointer > 30) {
+				pointer = 0;
+			}
+
+			maxTry++;
+
+			if (maxTry >= 300) {
+				break;
+			}
+		}
+		while (positions > 0);
+
+		int newStep = pointer;
+
 		PacketSendUtility.sendPacket(player, new SM_SHUGO_SWEEP(boardId, getPlayerSweep(player).getStep(),
 				getPlayerSweep(player).getFreeDice(), player.getPlayerShugoSweep().getGoldenDice(), 0, 0,completedSteps));
 
-		if (newStep > 30) {
-			System.out.println("Step > 30: " + step + " Move: " + move + " NewStep: " + newStep);
-			getPlayerSweep(player).setStep(newStep);
-
-			PacketSendUtility.sendPacket(player,
-					new SM_SHUGO_SWEEP(getPlayerSweep(player).getBoardId(), getPlayerSweep(player).getStep(),
-							getPlayerSweep(player).getFreeDice(), player.getPlayerShugoSweep().getGoldenDice(),
-							player.getPlayerShugoSweep().getResetBoard(), move, completedSteps));
-
-			getPlayerSweep(player).setStep(diff);
-
-			sendNewCompletedSteps(player, diff, diff);
-
-			rewardPlayer(player, getPlayerSweep(player).getStep(), diff);
-
-			player.getPlayerShugoSweep().setShugoSweepByObjId(player.getObjectId());
-		} else if (newStep == 30) {
-			System.out.println("Step = 30: " + step + " Move: " + move + " NewStep: " + newStep);
-
-			getPlayerSweep(player).setStep(newStep);
-
-			PacketSendUtility.sendPacket(player,
-					new SM_SHUGO_SWEEP(getPlayerSweep(player).getBoardId(), getPlayerSweep(player).getStep(),
-							getPlayerSweep(player).getFreeDice(), player.getPlayerShugoSweep().getGoldenDice(),
-							player.getPlayerShugoSweep().getResetBoard(), move, completedSteps));
-
-			sendNewCompletedSteps(player, newStep, newStep);
-
-			rewardPlayer(player, getPlayerSweep(player).getStep(), newStep);
-
-			player.getPlayerShugoSweep().setShugoSweepByObjId(player.getObjectId());
-		} else {
-			System.out.println("Step normal " + step + " Move: " + move + " NewStep: " + newStep);
-			getPlayerSweep(player).setStep(newStep);
-			player.getPlayerShugoSweep().setShugoSweepByObjId(player.getObjectId());
-
-			PacketSendUtility.sendPacket(player,
-					new SM_SHUGO_SWEEP(getPlayerSweep(player).getBoardId(), getPlayerSweep(player).getStep(),
-							getPlayerSweep(player).getFreeDice(), player.getPlayerShugoSweep().getGoldenDice(),
-							player.getPlayerShugoSweep().getResetBoard(), move, completedSteps));
-
-			sendNewCompletedSteps(player, newStep, move);
-
-			rewardPlayer(player, getPlayerSweep(player).getStep(), move);
-		}
-	}
-
-	public void resetBoard(Player player) {
-		int reset = player.getPlayerShugoSweep().getResetBoard();
-
-		player.getPlayerShugoSweep().setResetBoard(reset - 1);
-		player.getPlayerShugoSweep().setCompletedSteps(0);
-		player.getPlayerShugoSweep().setStep(0);
+		getPlayerSweep(player).setStep(newStep);
+		player.getPlayerShugoSweep().setShugoSweepByObjId(player.getObjectId());
 
 		PacketSendUtility.sendPacket(player,
-				new SM_SHUGO_SWEEP(getPlayerSweep(player).getBoardId(), 0, getPlayerSweep(player).getFreeDice(),
-						player.getPlayerShugoSweep().getGoldenDice(), player.getPlayerShugoSweep().getResetBoard(), 0, 0));
-	}
-
-	private void sendNewCompletedSteps(final Player player, final int newStep, final int moveCount) {
-		int completedSteps = player.getPlayerShugoSweep().getCompletedSteps();
+				new SM_SHUGO_SWEEP(getPlayerSweep(player).getBoardId(), getPlayerSweep(player).getStep(),
+						getPlayerSweep(player).getFreeDice(), player.getPlayerShugoSweep().getGoldenDice(),
+						player.getPlayerShugoSweep().getResetBoard(), move, completedSteps));
 
 		int bitwise = RewardsBitwise.get(newStep);
 
@@ -191,14 +165,44 @@ public class ShugoSweepService {
 
 		player.getPlayerShugoSweep().setCompletedSteps(completedSteps);
 
-		final int newCompletedSteps = completedSteps;
+		sendNewCompletedSteps(player, completedSteps, move);
+
+		rewardPlayer(player, getPlayerSweep(player).getStep(), move);
+	}
+
+	public void resetBoard(Player player) {
+		boolean isFree = false;
+		int bitwise = 0;
+
+		for (int i = 1; i <= MaximumShugoRewards; i++) {
+			bitwise |= RewardsBitwise.get(i);
+		}
+
+		isFree = bitwise == player.getPlayerShugoSweep().getCompletedSteps();
+
+		if (!isFree) {
+			int reset = player.getPlayerShugoSweep().getResetBoard();
+			player.getPlayerShugoSweep().setResetBoard(reset - 1);
+		}
+
+		player.getPlayerShugoSweep().setCompletedSteps(0);
+		player.getPlayerShugoSweep().setStep(0);
+
+		PacketSendUtility.sendPacket(player,
+				new SM_SHUGO_SWEEP(getPlayerSweep(player).getBoardId(), 0, getPlayerSweep(player).getFreeDice(),
+						player.getPlayerShugoSweep().getGoldenDice(), player.getPlayerShugoSweep().getResetBoard(), 0, 0));
+	}
+
+	private void sendNewCompletedSteps(final Player player, final int completedStep, final int moves) {
 		ThreadPoolManager.getInstance().schedule(new Runnable() {
 			@Override
 			public void run() {
+				int completed = completedStep;
+
 				PacketSendUtility.sendPacket(player, new SM_SHUGO_SWEEP(boardId, getPlayerSweep(player).getStep(),
-						getPlayerSweep(player).getFreeDice(), player.getPlayerShugoSweep().getGoldenDice(), 0, 0,newCompletedSteps));
+						getPlayerSweep(player).getFreeDice(), player.getPlayerShugoSweep().getGoldenDice(), 0, 0,completed));
 			}
-		}, moveCount * 1100);
+		}, moves * 750);
 	}
 
 	private void rewardPlayer(final Player player, final int step, final int move) {
@@ -210,8 +214,7 @@ public class ShugoSweepService {
 					ItemService.addItem(player, reward.getItemId(), reward.getCount());
 				}
 			}
-		}, move * 1200);
-
+		}, move * 950);
 	}
 
 	private PlayerSweep getPlayerSweep(Player player) {
