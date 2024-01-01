@@ -184,7 +184,7 @@ public class MySQL5PlayerDAO extends PlayerDAO
 		Connection con = null;
 		try {
 			con = DatabaseFactory.getConnection();
-			PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO players(id, `name`, account_id, account_name, x, y, z, heading, world_id, gender, race, player_class, quest_expands, npc_expands, warehouse_size, bonus_title_id, is_archdaeva, wardrobe_slot, online, stamps, rewarded_pass) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 2, 0, 0, 1)");
+			PreparedStatement preparedStatement = con.prepareStatement("INSERT INTO players(id, `name`, account_id, account_name, x, y, z, heading, world_id, gender, race, player_class, quest_expands, npc_expands, warehouse_size, bonus_title_id, is_archdaeva, online, stamps, rewarded_pass) " + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 1)");
 			log.debug("[DAO: MySQL5PlayerDAO] saving new player: " + pcd.getPlayerObjId() + " " + pcd.getName());
 			preparedStatement.setInt(1, pcd.getPlayerObjId());
 			preparedStatement.setString(2, pcd.getName());
