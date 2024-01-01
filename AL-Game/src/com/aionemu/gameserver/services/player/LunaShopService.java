@@ -285,17 +285,19 @@ public class LunaShopService {
 		if (!player.getPlayerLunaShop().isFreeChest()) {
 			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 1, 1));
 		}
-		if(player.getPlayerLunaShop().isLunaGoldenDice()) {
-			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 7, 74));
-		} else {
-			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 7, 72));
-		}
 
 		int diceCount = player.getPlayerLunaShop().getLunaDiceCount();
 
-		boolean isDiceFinish = diceCount == 6 || diceCount == 7;
+		if (diceCount > 0) {
+			if(player.getPlayerLunaShop().isLunaGoldenDice()) {
+				PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 7, 74));
+			} else {
+				PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP_LIST(1, 7, 72));
+			}
 
-		PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP(15, isDiceFinish));
+			boolean isDiceFinish = diceCount == 6 || diceCount == 7;
+			PacketSendUtility.sendPacket(player, new SM_LUNA_SHOP(15, isDiceFinish));
+		}
 	}
 
 	public void specialDesign(Player player, int recipeId) {
