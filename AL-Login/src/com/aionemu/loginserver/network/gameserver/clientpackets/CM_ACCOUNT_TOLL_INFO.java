@@ -28,8 +28,6 @@ import com.aionemu.loginserver.network.gameserver.GsClientPacket;
  * @author xTz
  */
 public class CM_ACCOUNT_TOLL_INFO extends GsClientPacket {
-
-    private int type;
     private long toll;
     private long luna;
     private String accountName;
@@ -39,7 +37,6 @@ public class CM_ACCOUNT_TOLL_INFO extends GsClientPacket {
      */
     @Override
     protected void readImpl() {
-        type = readC();
         toll = readQ();
         luna = readQ();
         accountName = readS();
@@ -53,17 +50,8 @@ public class CM_ACCOUNT_TOLL_INFO extends GsClientPacket {
         Account account = DAOManager.getDAO(AccountDAO.class).getAccount(accountName);
 
         if (account != null) {
-        	switch (type) {
-        		case 10:
-        			//TODO DAOManager.getDAO(PremiumDAO.class).updatePointBoutique(account.getId(), toll);
-        			break;
-        		case 0:
-        			DAOManager.getDAO(PremiumDAO.class).updatePoints(account.getId(), toll, 0);
-        			break;
-        		case 1:
-        			DAOManager.getDAO(PremiumDAO.class).updateLuna(account.getId(), luna);
-        			break;
-        	}
+            DAOManager.getDAO(PremiumDAO.class).updatePoints(account.getId(), toll, 0);
+            DAOManager.getDAO(PremiumDAO.class).updateLuna(account.getId(), luna);
         }
     }
 }

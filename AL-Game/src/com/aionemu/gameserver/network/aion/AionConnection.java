@@ -22,6 +22,7 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.aionemu.gameserver.network.loginserver.serverpackets.SM_ACCOUNT_TOLL_INFO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -289,6 +290,7 @@ public class AionConnection extends AConnection {
 		if (getAccount() != null) {
 			LoginServer.getInstance().aionClientDisconnected(getAccount().getId());
 			LoginServer.getInstance().sendPacket(new SM_MAC(getAccount().getId(), macAddress));
+			LoginServer.getInstance().sendPacket(new SM_ACCOUNT_TOLL_INFO(getAccount().getToll(), getAccount().getLuna(),getAccount().getName()));
 		}
 
 		Player player = getActivePlayer();
