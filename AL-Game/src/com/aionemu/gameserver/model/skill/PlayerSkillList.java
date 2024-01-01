@@ -172,11 +172,9 @@ public final class PlayerSkillList implements SkillList<Player> {
 			skillLevel = 1;
 		}
 
-		int displayLevel = skillLevel > 0 ? skillLevel - 1 : 0;
-
 		SkillTemplate linked = DataManager.SKILL_DATA.getSkillTemplate(skillId);
 
-		PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_MSG_STIGMA_GET_LINKED_SKILL(new DescriptionId(DataManager.SKILL_DATA.getSkillTemplate(linked.getSkillId()).getNameId()), displayLevel));
+		PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_MSG_STIGMA_GET_LINKED_SKILL(new DescriptionId(DataManager.SKILL_DATA.getSkillTemplate(linked.getSkillId()).getNameId()), skillLevel));
 
 		return addSkill(player, skillId, skillLevel, false, true, PersistentState.NOACTION);
 	}

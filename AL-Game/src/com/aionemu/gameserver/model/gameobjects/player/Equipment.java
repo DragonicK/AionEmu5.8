@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import com.aionemu.gameserver.model.templates.item.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,11 +45,6 @@ import com.aionemu.gameserver.model.gameobjects.Summon;
 import com.aionemu.gameserver.model.gameobjects.state.CreatureState;
 import com.aionemu.gameserver.model.items.ItemSlot;
 import com.aionemu.gameserver.model.stats.listeners.ItemEquipmentListener;
-import com.aionemu.gameserver.model.templates.item.ArmorType;
-import com.aionemu.gameserver.model.templates.item.ItemCategory;
-import com.aionemu.gameserver.model.templates.item.ItemTemplate;
-import com.aionemu.gameserver.model.templates.item.ItemUseLimits;
-import com.aionemu.gameserver.model.templates.item.WeaponType;
 import com.aionemu.gameserver.model.templates.itemset.ItemSetTemplate;
 import com.aionemu.gameserver.network.aion.serverpackets.SM_DELETE_ITEM;
 import com.aionemu.gameserver.network.aion.serverpackets.SM_EMOTION;
@@ -156,6 +152,7 @@ public class Equipment {
 				itemSlotMask = itemTemplate.getItemSlot();
 				break;
 			}
+
 			ItemSlot[] possibleSlots = ItemSlot.getSlotsFor(itemSlotMask);
 			for (int i = 0; i < possibleSlots.length; i++) {
 				ItemSlot possibleSlot = possibleSlots[i];
@@ -175,9 +172,13 @@ public class Equipment {
 				}
 				itemSlotToEquip = itemTemplate.getItemSlot();
 			}
-			if (!StigmaService.notifyEquipAction(owner, item, slot)) {
-				return null;
+
+			if (item.getItemTemplate().isStigma()) {
+				if (!StigmaService.notifyEquipAction(owner, item, slot)) {
+					return null;
+				}
 			}
+
 			if (itemSlotToEquip == 0) {
 				itemSlotToEquip = possibleSlots[0].getSlotIdMask();
 			}

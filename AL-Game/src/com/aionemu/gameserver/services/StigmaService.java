@@ -67,76 +67,78 @@ public class StigmaService {
 	}
 
 	public static boolean notifyEquipAction(final Player player, Item resultItem, long slot) {
-		if (resultItem.getItemTemplate().isStigma()) {
-
-			if (ItemSlot.isRegularStigma(slot)) {
-				if (getPossibleStigmaCount(player) <= player.getEquipment().getEquippedItemsRegularStigma().size()) {
-					AuditLogger.info(player, "Possible client hack stigma count big :O");
-					return false;
-				}
-			}
-
-			if (!resultItem.getItemTemplate().isClassSpecific(player.getCommonData().getPlayerClass())) {
-				AuditLogger.info(player, "Possible client hack not valid for class.");
+		if (ItemSlot.isRegularStigma(slot)) {
+			if (getPossibleStigmaCount(player) <= player.getEquipment().getEquippedItemsRegularStigma().size()) {
+				AuditLogger.info(player, "Possible client hack stigma count big :O");
 				return false;
 			}
+		}
 
-			Stigma stigmaInfo = resultItem.getItemTemplate().getStigma();
+		if (!resultItem.getItemTemplate().isClassSpecific(player.getCommonData().getPlayerClass())) {
+			AuditLogger.info(player, "Possible client hack not valid for class.");
+			return false;
+		}
 
-			if (stigmaInfo == null) {
-				log.warn("Stigma info missing for item: " + resultItem.getItemTemplate().getTemplateId());
-				return false;
-			}
+		Stigma stigmaInfo = resultItem.getItemTemplate().getStigma();
 
-			if (player.getInventory().getKinah() < getPriceByQuality(resultItem)) {
-				PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_STIGMA_NOT_ENOUGH_MONEY);
-				return false;
-			}
-			else {
-				player.getInventory().decreaseKinah(getPriceByQuality(resultItem));
-			}
+		if (stigmaInfo == null) {
+			log.warn("Stigma info missing for item: " + resultItem.getItemTemplate().getTemplateId());
+			return false;
+		}
 
-			List<Integer> sStigma = player.getEquipment().getEquippedItemsAllStigmaIds();
+		if (player.getInventory().getKinah() < getPriceByQuality(resultItem)) {
+			PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_STIGMA_NOT_ENOUGH_MONEY);
+			return false;
+		}
+		else {
+			player.getInventory().decreaseKinah(getPriceByQuality(resultItem));
+		}
 
-			sStigma.add(resultItem.getItemId());
+		List<Integer> sStigma = player.getEquipment().getEquippedItemsAllStigmaIds();
 
-			List<Item> copies = copyEquippedStigmas(player);
+		sStigma.add(resultItem.getItemId());
 
-			// Do not add now the special stigma item.
-			if (slot != ItemSlot.STIGMA_SPECIAL.getSlotIdMask()) {
-				copies.add(resultItem);
-			}
+		List<Item> copies = copyEquippedStigmas(player);
 
-			checkStigmaSetEnchant(player, copies);
+		// Do not add now the special stigma item.
+		if (slot != ItemSlot.STIGMA_SPECIAL.getSlotIdMask()) {
+			copies.add(resultItem);
+		}
 
-			int stigmaSetLevel = player.getStigmaSet();
-			int minimumStigmaLevel = getMinimumStigmaLevel(player, copies);
+		checkStigmaSetEnchant(player, copies);
 
-			// Now add stigmas to receive additional level.
-			// It can be added to player and send to client.
-			if (slot == ItemSlot.STIGMA_SPECIAL.getSlotIdMask()) {
-				copies.add(resultItem);
-			}
+		int stigmaSetLevel = player.getStigmaSet();
+		int minimumStigmaLevel = getMinimumStigmaLevel(player, copies);
 
-			for (Item item : copies) {
-				for (int i = 1; i <= player.getLevel(); i++) {
-					SkillLearnTemplate[] skillTemplates = DataManager.SKILL_TREE_DATA.getTemplatesFor(player.getPlayerClass(), i, player.getRace());
+		// Now add stigmas to receive additional level.
+		// It can be added to player and send to client.
+		if (slot == ItemSlot.STIGMA_SPECIAL.getSlotIdMask()) {
+			copies.add(resultItem);
+		}
 
-					for (SkillLearnTemplate skillTree : skillTemplates) {
-						if (item.getItemTemplate().isStigma() && item.getSkillGroup().equals(skillTree.getSkillGroup())) {
-							int stigmaLevel = item.getEnchantLevel();
-							int skillLevel = skillTree.getSkillLevel();
+		for (Item item : copies) {
+			for (int i = 1; i <= player.getLevel(); i++) {
+				SkillLearnTemplate[] skillTemplates = DataManager.SKILL_TREE_DATA.getTemplatesFor(player.getPlayerClass(), i, player.getRace());
 
-							player.getSkillList().addStigmaSkill(player, skillTree.getSkillId(), stigmaLevel + skillLevel + stigmaSetLevel);
-						}
+				for (SkillLearnTemplate skillTree : skillTemplates) {
+					if (item.getItemTemplate().isStigma() && item.getSkillGroup().equals(skillTree.getSkillGroup())) {
+						int stigmaLevel = item.getEnchantLevel();
+						int skillLevel = skillTree.getSkillLevel();
+
+						player.getSkillList().addStigmaSkill(player, skillTree.getSkillId(), stigmaLevel + skillLevel + stigmaSetLevel);
 					}
 				}
 			}
-
-			StigmaLinkedService.checkEquipConditions(player, sStigma, minimumStigmaLevel);
-
-			PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getAllSkills()));
 		}
+
+		// Set minimum level to 1 to vision stigma.
+		if (minimumStigmaLevel == 0) {
+			minimumStigmaLevel = 1;
+		}
+
+		StigmaLinkedService.checkEquipConditions(player, sStigma, minimumStigmaLevel);
+
+		PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getAllSkills()));
 
 		return true;
 	}
@@ -291,6 +293,11 @@ public class StigmaService {
 			}
 		}
 
+		// Set minimum level to 1 to vision stigma.
+		if (minimumStigmaLevel == 0) {
+			minimumStigmaLevel = 1;
+		}
+
 		List<Integer> sStigma = player.getEquipment().getEquippedItemsAllStigmaIds();
 
 		StigmaLinkedService.checkEquipConditions(player, sStigma, minimumStigmaLevel);
@@ -309,10 +316,14 @@ public class StigmaService {
 				SkillTemplate template = DataManager.SKILL_DATA.getSkillTemplate(id);
 
 				if (template != null) {
-					// We add + 1 to skillevel in SM_SKILL_LIST when it is Linked.
+					// ##### WARNING ######
+					// We add + 1 to skillevel in SM_SKILL_LIST when it is Linked and level is more than 1.
 					// I don't know why but is showing -1 level than expected.
 					// So, here we need to add + 1 to find it in game client to remove it.
-					PacketSendUtility.sendPacket(player, new SM_SKILL_REMOVE(id, level + 1, false, true));
+					// ##### WARNING ######
+					int displayLevel = level > 1 ? level + 1 : level;
+
+					PacketSendUtility.sendPacket(player, new SM_SKILL_REMOVE(id, displayLevel, false, true));
 
 					if (sendAlert) {
 						PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_MSG_STIGMA_DELETE_LINKED_SKILL(new DescriptionId(template.getNameId()), level));
