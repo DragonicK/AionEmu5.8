@@ -142,27 +142,11 @@ public class SkillLearnService {
 			if (player.getEffectController().hasAbnormalEffect(skillId)) {
 				player.getEffectController().removeEffect(skillId);
 			}
-			PacketSendUtility.sendPacket(player, new SM_SKILL_REMOVE(skillId, skillLevel,
-					player.getSkillList().getSkillEntry(skillId).isStigma(), false));
+			PacketSendUtility.sendPacket(player, new SM_SKILL_REMOVE(skillId, skillLevel, player.getSkillList().getSkillEntry(skillId).isStigma(), false));
 			player.getSkillList().removeSkill(skillId);
 		}
 	}
 
-	public static void removeLinkedSkill(Player player, int skillId) {
-		if (player.getSkillList().isSkillPresent(skillId)) {
-			Integer skillLevel = player.getSkillList().getSkillLevel(skillId);
-			if (skillLevel == 0) {
-				skillLevel = 1;
-			}
-			if (player.getEffectController().hasAbnormalEffect(skillId)) {
-				player.getEffectController().removeEffect(skillId);
-			}
-			PacketSendUtility.sendPacket(player, new SM_SKILL_REMOVE(skillId, skillLevel, false,
-					player.getSkillList().getSkillEntry(skillId).isLinked()));
-			player.getSkillList().removeSkill(skillId);
-			player.setLinkedSkill(0);
-		}
-	}
 
 	public static int getSkillLearnLevel(int skillId, int playerLevel, int wantedSkillLevel) {
 		SkillLearnTemplate[] skillTemplates = DataManager.SKILL_TREE_DATA.getTemplatesForSkill(skillId);

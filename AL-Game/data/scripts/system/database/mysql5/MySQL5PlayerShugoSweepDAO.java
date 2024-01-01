@@ -115,7 +115,7 @@ public class MySQL5PlayerShugoSweepDAO extends PlayerShugoSweepDAO
                 case UPDATE_REQUIRED:
                 case NEW:
                     insert = updatePlayerSweep(con, player);
-                    log.info("DB updated.");
+                    log.info("DB Shugo Sweep updated.");
                     break;
                 default:
                     break;

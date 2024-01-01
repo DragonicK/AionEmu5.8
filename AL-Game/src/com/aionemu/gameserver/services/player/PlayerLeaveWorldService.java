@@ -77,6 +77,8 @@ public class PlayerLeaveWorldService {
 		log.info("Player Logged Out: " + player.getName() + " Account: "
 				+ (player.getClientConnection() != null ? player.getClientConnection().getAccount().getName()
 						: "Disconnected"));
+
+		StigmaLinkedService.onLogOut(player);
 		FindGroupService.getInstance().removeFindGroup(player.getRace(), 0x00, player.getObjectId());
 		FindGroupService.getInstance().removeFindGroup(player.getRace(), 0x04, player.getObjectId());
 		player.onLoggedOut();
@@ -171,7 +173,6 @@ public class PlayerLeaveWorldService {
 		PacketSendUtility.broadcastPacket(player, new SM_DELETE(player, 2), 50);
 		PlayerAccountData pad = player.getPlayerAccount().getPlayerAccountData(player.getObjectId());
 		pad.setEquipment(player.getEquipment().getEquippedItems());
-		StigmaLinkedService.onLogOut(player);
 		EventWindowService.getInstance().onLogout(player);
 	}
 

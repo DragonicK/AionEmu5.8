@@ -16,8 +16,12 @@
  */
 package com.aionemu.gameserver.services;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.aionemu.gameserver.model.skill.SkillEntry;
+import com.aionemu.gameserver.model.skill.linked_skill.PlayerEquippedStigmaList;
+import com.aionemu.gameserver.network.aion.serverpackets.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,10 +35,6 @@ import com.aionemu.gameserver.model.items.ItemSlot;
 import com.aionemu.gameserver.model.skill.PlayerSkillEntry;
 import com.aionemu.gameserver.model.templates.item.RequireSkill;
 import com.aionemu.gameserver.model.templates.item.Stigma;
-import com.aionemu.gameserver.network.aion.serverpackets.SM_CUBE_UPDATE;
-import com.aionemu.gameserver.network.aion.serverpackets.SM_INVENTORY_UPDATE_ITEM;
-import com.aionemu.gameserver.network.aion.serverpackets.SM_SKILL_LIST;
-import com.aionemu.gameserver.network.aion.serverpackets.SM_SYSTEM_MESSAGE;
 import com.aionemu.gameserver.questEngine.model.QuestStatus;
 import com.aionemu.gameserver.skillengine.model.SkillLearnTemplate;
 import com.aionemu.gameserver.skillengine.model.SkillTemplate;
@@ -68,166 +68,196 @@ public class StigmaService {
 
 	public static boolean notifyEquipAction(final Player player, Item resultItem, long slot) {
 		if (resultItem.getItemTemplate().isStigma()) {
+
 			if (ItemSlot.isRegularStigma(slot)) {
 				if (getPossibleStigmaCount(player) <= player.getEquipment().getEquippedItemsRegularStigma().size()) {
 					AuditLogger.info(player, "Possible client hack stigma count big :O");
 					return false;
 				}
 			}
+
 			if (!resultItem.getItemTemplate().isClassSpecific(player.getCommonData().getPlayerClass())) {
 				AuditLogger.info(player, "Possible client hack not valid for class.");
 				return false;
 			}
+
 			Stigma stigmaInfo = resultItem.getItemTemplate().getStigma();
+
 			if (stigmaInfo == null) {
 				log.warn("Stigma info missing for item: " + resultItem.getItemTemplate().getTemplateId());
 				return false;
 			}
+
 			if (player.getInventory().getKinah() < getPriceByQuality(resultItem)) {
 				PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_STIGMA_NOT_ENOUGH_MONEY);
 				return false;
-			} else {
+			}
+			else {
 				player.getInventory().decreaseKinah(getPriceByQuality(resultItem));
 			}
-			for (int i = 1; i <= player.getLevel(); i++) {
-				SkillLearnTemplate[] skillTemplates = DataManager.SKILL_TREE_DATA
-						.getTemplatesFor(player.getPlayerClass(), i, player.getRace());
-				for (SkillLearnTemplate skillTree : skillTemplates) {
-					if (resultItem.getSkillGroup().equals(skillTree.getSkillGroup())) {
-						// PacketSendUtility.sendPacket(player, new SM_SYSTEM_MESSAGE(1300401, new
-						// DescriptionId(resultItem.getNameId()), skillTree.getSkillLevel() +
-						// resultItem.getEnchantLevel()));
-						player.getSkillList().addStigmaSkill(player, skillTree.getSkillId(),
-								skillTree.getSkillLevel() + resultItem.getEnchantLevel());
-						PacketSendUtility.sendPacket(player,
-								new SM_SKILL_LIST(player, player.getSkillList().getStigmaSkills()));
+
+			List<Integer> sStigma = player.getEquipment().getEquippedItemsAllStigmaIds();
+
+			sStigma.add(resultItem.getItemId());
+
+			List<Item> copies = copyEquippedStigmas(player);
+
+			// Do not add now the special stigma item.
+			if (slot != ItemSlot.STIGMA_SPECIAL.getSlotIdMask()) {
+				copies.add(resultItem);
+			}
+
+			checkStigmaSetEnchant(player, copies);
+
+			int stigmaSetLevel = player.getStigmaSet();
+			int minimumStigmaLevel = getMinimumStigmaLevel(player, copies);
+
+			// Now add stigmas to receive additional level.
+			// It can be added to player and send to client.
+			if (slot == ItemSlot.STIGMA_SPECIAL.getSlotIdMask()) {
+				copies.add(resultItem);
+			}
+
+			for (Item item : copies) {
+				for (int i = 1; i <= player.getLevel(); i++) {
+					SkillLearnTemplate[] skillTemplates = DataManager.SKILL_TREE_DATA.getTemplatesFor(player.getPlayerClass(), i, player.getRace());
+
+					for (SkillLearnTemplate skillTree : skillTemplates) {
+						if (item.getItemTemplate().isStigma() && item.getSkillGroup().equals(skillTree.getSkillGroup())) {
+							int stigmaLevel = item.getEnchantLevel();
+							int skillLevel = skillTree.getSkillLevel();
+
+							player.getSkillList().addStigmaSkill(player, skillTree.getSkillId(), stigmaLevel + skillLevel + stigmaSetLevel);
+						}
 					}
 				}
 			}
-			List<Integer> sStigma = player.getEquipment().getEquippedItemsAllStigmaIds();
-			sStigma.add(resultItem.getItemId());
-			StigmaLinkedService.checkEquipConditions(player, sStigma);
-			checkStigmaEnchant(player, sStigma);
-			if (player.getStigmaSet() != 0) {
-				addStigmaSetEnchant(player, resultItem.getEnchantLevel());
-			}
+
+			StigmaLinkedService.checkEquipConditions(player, sStigma, minimumStigmaLevel);
+
+			PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getAllSkills()));
 		}
+
 		return true;
 	}
 
 	public static boolean notifyUnequipAction(Player player, Item resultItem) {
-		if (player.getEquipment().isSlotEquipped(ItemSlot.STIGMA_SPECIAL.getSlotIdMask())
-				&& resultItem.getEquipmentSlot() != ItemSlot.STIGMA_SPECIAL.getSlotIdMask()) {
+		if (player.getEquipment().isSlotEquipped(ItemSlot.STIGMA_SPECIAL.getSlotIdMask()) && resultItem.getEquipmentSlot() != ItemSlot.STIGMA_SPECIAL.getSlotIdMask()) {
 			return false;
 		}
-		if (player.getStigmaSet() != 0 && player.getEquipment().getEquippedItemsAllStigmaIds().size() == 6) {
-			removeStigmaSetEnchant(player);
-		}
+
 		if (resultItem.getItemTemplate().isStigma()) {
-			int itemId = resultItem.getItemId();
-			PacketSendUtility.sendPacket(player,
-					SM_CUBE_UPDATE.stigmaSlots(player.getCommonData().getAdvancedStigmaSlotSize()));
+			PacketSendUtility.sendPacket(player,SM_CUBE_UPDATE.stigmaSlots(player.getCommonData().getAdvancedStigmaSlotSize()));
 			PacketSendUtility.sendPacket(player, new SM_INVENTORY_UPDATE_ITEM(player, resultItem));
+
 			for (int i = 1; i <= player.getLevel(); i++) {
-				SkillLearnTemplate[] skillTemplates = DataManager.SKILL_TREE_DATA
-						.getTemplatesFor(player.getPlayerClass(), i, player.getRace());
+				SkillLearnTemplate[] skillTemplates = DataManager.SKILL_TREE_DATA.getTemplatesFor(player.getPlayerClass(), i, player.getRace());
+
 				for (SkillLearnTemplate skillTree : skillTemplates) {
 					if (resultItem.getSkillGroup().equals(skillTree.getSkillGroup())) {
-						// PacketSendUtility.sendPacket(player, new SM_SYSTEM_MESSAGE(1300401, new
-						// DescriptionId(resultItem.getNameId()), resultItem.getEnchantLevel()));
-						player.getSkillList().addStigmaSkill(player, skillTree.getSkillId(), skillTree.getSkillLevel());
-						PacketSendUtility.sendPacket(player,
-								new SM_SKILL_LIST(player, player.getSkillList().getStigmaSkills()));
 						SkillLearnService.removeSkill(player, skillTree.getSkillId());
 					}
 				}
 			}
-			// PacketSendUtility.sendPacket(player, new SM_SYSTEM_MESSAGE(1300403, new
-			// DescriptionId(resultItem.getNameId())));
-			player.getEquipedStigmaList().remove(player, itemId);
-			if (player.getEquipment().getEquippedItemsAllStigma().size() <= 6 && player.getLinkedSkill() != 0) {
-				SkillTemplate linked = DataManager.SKILL_DATA.getSkillTemplate(player.getLinkedSkill());
-				PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_MSG_STIGMA_DELETE_LINKED_SKILL(
-						new DescriptionId(DataManager.SKILL_DATA.getSkillTemplate(linked.getSkillId()).getNameId()),
-						1));
-				StigmaLinkedService.DeleteLinkedSkills(player);
-			}
-			if (player.getEquipment().getEquippedItemsAllStigma().size() <= 6 && player.getStigmaSet() != 0) {
+
+	    	player.getEquipedStigmaList().remove(player, resultItem.getItemId());
+
+			if (resultItem.getEquipmentSlot() != ItemSlot.STIGMA_SPECIAL.getSlotIdMask()) {
+				clearLinkedStigmas(player, true);
+
 				player.setStigmaSet(0);
+
+				for (Item item : player.getEquipment().getEquippedItemsAllStigma()) {
+					for (int i = 1; i <= player.getLevel(); i++) {
+						SkillLearnTemplate[] skillTemplates = DataManager.SKILL_TREE_DATA.getTemplatesFor(player.getPlayerClass(), i, player.getRace());
+
+						for (SkillLearnTemplate skillTree : skillTemplates) {
+							if (item.getItemTemplate().isStigma() && item.getSkillGroup().equals(skillTree.getSkillGroup())) {
+								int stigmaLevel = item.getEnchantLevel();
+								int skillLevel = skillTree.getSkillLevel();
+
+								SkillEntry entry = player.getSkillList().getSkillEntry(skillTree.getSkillId());
+
+								if (entry != null) {
+									entry.setSkillLvl(stigmaLevel + skillLevel);
+								}
+							}
+						}
+					}
+				}
 			}
+
+			PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getAllSkills()));
 		}
+
 		return true;
 	}
 
-	public static void addStigmaSetEnchant(Player player, int enchantLevel) {
-		for (PlayerSkillEntry skill : player.getSkillList().getStigmaSkills()) {
-			player.getSkillList().addStigmaSkill(player, skill.getSkillId(), 1 + enchantLevel + player.getStigmaSet());
-			PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getStigmaSkills()));
+	public static void checkStigmaSetEnchant(Player player, List<Item> stigmas) {
+		int minimumLevel = getMinimumStigmaLevel(player, stigmas);
+
+		if (minimumLevel == 6) {
+			player.setStigmaSet(1);
+		} else if (minimumLevel == 7) {
+			player.setStigmaSet(2);
+		} else if (minimumLevel == 8) {
+			player.setStigmaSet(3);
+		} else if (minimumLevel == 9) {
+			player.setStigmaSet(3);
+		} else if (minimumLevel >= 10) {
+			player.setStigmaSet(5);
+		} else {
+			player.setStigmaSet(0);
 		}
 	}
 
-	public static void enchanteLinkedSkill(Player player, int enchantLevel) {
-		for (PlayerSkillEntry skill : player.getSkillList().getStigmaSkills()) {
-			player.getSkillList().addStigmaSkill(player, skill.getSkillId(), 1 + enchantLevel + player.getStigmaSet());
-			PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getStigmaSkills()));
-		}
-	}
+	private static int getMinimumStigmaLevel(Player player, List<Item> stigmas) {
+		int minimumLevel = 2048;
 
-	public static void removeStigmaSetEnchant(Player player) {
-		for (Item resultItem : player.getEquipment().getEquippedItemsAllStigma()) {
-			for (int i = 1; i <= player.getLevel(); i++) {
-				SkillLearnTemplate[] skillTemplates = DataManager.SKILL_TREE_DATA
-						.getTemplatesFor(player.getPlayerClass(), i, player.getRace());
-				for (SkillLearnTemplate skillTree : skillTemplates) {
-					if (resultItem.getSkillGroup().equals(skillTree.getSkillGroup())) {
-						player.getSkillList().addStigmaSkill(player, skillTree.getSkillId(),
-								skillTree.getSkillLevel() + resultItem.getEnchantLevel());
-						PacketSendUtility.sendPacket(player,
-								new SM_SKILL_LIST(player, player.getSkillList().getStigmaSkills()));
+		if (stigmas.size() >= 6) {
+			Item special = player.getEquipment().getSpecialStigmaItemSlot();
+
+			for (Item item : stigmas) {
+				if (special != null) {
+					if (item.getItemId() == special.getItemId()) {
+						continue;
 					}
 				}
-			}
-		}
-	}
 
-	public static void checkStigmaEnchant(Player player, List<Integer> list) {
-		for (Item item : player.getEquipment().getEquippedItemsAllStigma()) {
-			if (list.size() >= 6) {
-				if (item.getEnchantLevel() == 6) {
-					player.setStigmaSet(1);
-				} else if (item.getEnchantLevel() == 7) {
-					player.setStigmaSet(2);
-				} else if (item.getEnchantLevel() == 8) {
-					player.setStigmaSet(3);
-				} else if (item.getEnchantLevel() == 9) {
-					player.setStigmaSet(3);
-				} else if (item.getEnchantLevel() >= 10) {
-					player.setStigmaSet(5);
-				} else {
-					player.setStigmaSet(0);
+				if (item.getEnchantLevel() < minimumLevel) {
+					minimumLevel = item.getEnchantLevel();
 				}
 			}
 		}
+
+		return minimumLevel == 2048 ? 0 : minimumLevel;
 	}
 
 	public static void onPlayerLogin(Player player) {
+		clearLinkedStigmas(player, false);
+
 		List<Item> equippedItems = player.getEquipment().getEquippedItemsAllStigma();
-		List<Integer> Stigma = player.getEquipment().getEquippedItemsAllStigmaIds();
-		checkStigmaEnchant(player, Stigma);
+
+		checkStigmaSetEnchant(player, equippedItems);
+
+		int stigmaSetLevel = player.getStigmaSet();
+		int minimumStigmaLevel = getMinimumStigmaLevel(player, equippedItems);
+
 		for (Item item : equippedItems) {
 			for (int i = 1; i <= player.getLevel(); i++) {
-				SkillLearnTemplate[] skillTemplates = DataManager.SKILL_TREE_DATA
-						.getTemplatesFor(player.getPlayerClass(), i, player.getRace());
+				SkillLearnTemplate[] skillTemplates = DataManager.SKILL_TREE_DATA.getTemplatesFor(player.getPlayerClass(), i, player.getRace());
+
 				for (SkillLearnTemplate skillTree : skillTemplates) {
 					if (item.getItemTemplate().isStigma() && item.getSkillGroup().equals(skillTree.getSkillGroup())) {
-						player.getSkillList().addStigmaSkill(player, skillTree.getSkillId(),
-								skillTree.getSkillLevel() + item.getEnchantLevel() + player.getStigmaSet());
-						PacketSendUtility.sendPacket(player,
-								new SM_SKILL_LIST(player, player.getSkillList().getStigmaSkills()));
+						int stigmaItemLevel = item.getEnchantLevel();
+						int skillLevel = skillTree.getSkillLevel();
+
+						player.getSkillList().addStigmaSkill(player, skillTree.getSkillId(),  stigmaItemLevel + skillLevel + stigmaSetLevel);
 					}
 				}
 			}
 		}
+
 		for (Item item : equippedItems) {
 			if (item.getItemTemplate().isStigma()) {
 				if (!isPossibleEquippedStigma(player, item)) {
@@ -257,12 +287,41 @@ public class StigmaService {
 				if (!item.getItemTemplate().isClassSpecific(player.getCommonData().getPlayerClass())) {
 					AuditLogger.info(player, "Possible client hack not valid for class.");
 					player.getEquipment().unEquipItem(item.getObjectId(), 0);
-					continue;
 				}
 			}
 		}
-		/** Stigma Linked Skills **/
-		StigmaLinkedService.checkEquipConditions(player, Stigma);
+
+		List<Integer> sStigma = player.getEquipment().getEquippedItemsAllStigmaIds();
+
+		StigmaLinkedService.checkEquipConditions(player, sStigma, minimumStigmaLevel);
+
+		PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getAllSkills()));
+	}
+
+	private static void clearLinkedStigmas(Player player, boolean sendAlert) {
+		boolean isEmpty = player.getSkillList().isLinkedSkillEmpty();
+
+		if (!isEmpty) {
+			for (PlayerSkillEntry entry : player.getSkillList().getLinkedSkills()) {
+				int id = entry.getSkillId();
+				int level = entry.getSkillLevel();
+
+				SkillTemplate template = DataManager.SKILL_DATA.getSkillTemplate(id);
+
+				if (template != null) {
+					// We add + 1 to skillevel in SM_SKILL_LIST when it is Linked.
+					// I don't know why but is showing -1 level than expected.
+					// So, here we need to add + 1 to find it in game client to remove it.
+					PacketSendUtility.sendPacket(player, new SM_SKILL_REMOVE(id, level + 1, false, true));
+
+					if (sendAlert) {
+						PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_MSG_STIGMA_DELETE_LINKED_SKILL(new DescriptionId(template.getNameId()), level));
+					}
+				}
+			}
+		}
+
+		player.getSkillList().removeLinkedSkills();
 	}
 
 	private static int getPossibleStigmaCount(Player player) {
@@ -309,6 +368,7 @@ public class StigmaService {
 		if (player == null || item == null || !item.getItemTemplate().isStigma()) {
 			return false;
 		}
+
 		long itemSlotToEquip = item.getEquipmentSlot();
 		if (ItemSlot.isRegularStigma(itemSlotToEquip)) {
 			int stigmaCount = getPossibleStigmaCount(player);
@@ -367,4 +427,10 @@ public class StigmaService {
 		}
 		return false;
 	}
+
+	private static List<Item> copyEquippedStigmas(Player player) {
+		List<Item> original = player.getEquipment().getEquippedItemsAllStigma();
+
+		return new ArrayList<>(original);
+ 	}
 }

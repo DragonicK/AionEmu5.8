@@ -30,7 +30,7 @@ public interface SkillList<T extends Creature> {
 	 */
 	boolean addSkill(T creature, int skillId, int skillLevel);
 
-	boolean addLinkedSkill(T creature, int skillId);
+	boolean addLinkedSkill(T creature, int skillId, int skillLevel);
 
 	/**
 	 * Remove skill from list

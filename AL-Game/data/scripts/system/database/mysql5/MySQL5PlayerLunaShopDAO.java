@@ -129,7 +129,7 @@ public class MySQL5PlayerLunaShopDAO extends PlayerLunaShopDAO {
                 case UPDATE_REQUIRED:
                 case NEW:
                     insert = updateLunaShop(con, player);
-                    log.info("DB updated.");
+                    log.info("DB Luna Shop updated.");
                     break;
                 default:
                     break;
