@@ -978,20 +978,27 @@ public class PlayerController extends CreatureController<Player> {
 
 	public void upgradePlayer() {
 		Player player = getOwner();
+
 		byte level = player.getLevel();
+
 		PlayerStatsTemplate statsTemplate = DataManager.PLAYER_STATS_DATA.getTemplate(player);
+
 		player.setPlayerStatsTemplate(statsTemplate);
 		player.getLifeStats().synchronizeWithMaxStats();
 		player.getLifeStats().updateCurrentStats();
+
 		PacketSendUtility.broadcastPacket(player, new SM_LEVEL_UPDATE(player.getObjectId(), 0, level), true);
 		if (HTMLConfig.ENABLE_GUIDES) {
 			HTMLService.sendGuideHtml(player);
 		}
+
 		ClassChangeService.showClassChangeDialog(player);
 		QuestEngine.getInstance().onLvlUp(new QuestEnv(null, player, 0, 0));
+
 		player.getController().updateZone();
 		player.getController().updateNearbyQuests();
 		player.getController().updatePassiveStats();
+
 		PacketSendUtility.sendPacket(player, new SM_STATS_INFO(player));
 		if (level == 10) {
 			CraftSkillUpdateService.getInstance().setMorphRecipe(player);
@@ -1031,6 +1038,7 @@ public class PlayerController extends CreatureController<Player> {
 			// An additional Major Stigma slot is now available.
 			PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_MSG_STIGMA_OPEN_ENHANCED2_SLOT);
 		}
+
 		// Essence Cores 5.3
 		if (level == 66) {
 			PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_MSG_CPSTONE_OPEN_SLOT);
@@ -1041,9 +1049,11 @@ public class PlayerController extends CreatureController<Player> {
 		if (level == 70) {
 			PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_MSG_CPSTONE_OPEN_SLOT);
 		}
+
 		SkillLearnService.addNewSkills(player);
 		PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getBasicSkills()));
-		if (player.isInTeam()) {
+
+    	if (player.isInTeam()) {
 			TeamEffectUpdater.getInstance().startTask(player);
 		}
 		if (player.isLegionMember()) {
@@ -1066,6 +1076,7 @@ public class PlayerController extends CreatureController<Player> {
 		if (level >= 66 && level <= 83) {
 			reachedPlayerLvl(player);
 		}
+
 		player.getNpcFactions().onLevelUp();
 		CreativityEssenceService.getInstance().pointPerLevel(player);
 	}

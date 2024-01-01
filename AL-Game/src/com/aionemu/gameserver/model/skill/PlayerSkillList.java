@@ -29,6 +29,7 @@ import com.aionemu.gameserver.model.gameobjects.PersistentState;
 import com.aionemu.gameserver.model.gameobjects.player.Player;
 import com.aionemu.gameserver.model.templates.item.Stigma.StigmaSkill;
 import com.aionemu.gameserver.network.aion.serverpackets.SM_SKILL_LIST;
+import com.aionemu.gameserver.network.aion.serverpackets.SM_SKILL_REMOVE;
 import com.aionemu.gameserver.network.aion.serverpackets.SM_SYSTEM_MESSAGE;
 import com.aionemu.gameserver.skillengine.model.SkillTemplate;
 import com.aionemu.gameserver.utils.PacketSendUtility;
@@ -43,7 +44,6 @@ public final class PlayerSkillList implements SkillList<Player> {
 	private final Map<Integer, PlayerSkillEntry> basicSkills;
 	private final Map<Integer, PlayerSkillEntry> stigmaSkills;
 	private final Map<Integer, PlayerSkillEntry> linkedSkills;
-	FastList<Integer> linked = FastList.newInstance();
 
 	private final List<PlayerSkillEntry> deletedSkills;
 
@@ -102,6 +102,10 @@ public final class PlayerSkillList implements SkillList<Player> {
 
 	public PlayerSkillEntry[] getLinkedSkills() {
 		return linkedSkills.values().toArray(new PlayerSkillEntry[linkedSkills.size()]);
+	}
+
+	public boolean isLinkedSkillEmpty() {
+		return linkedSkills.isEmpty();
 	}
 
 	public PlayerSkillEntry[] getDeletedSkills() {
@@ -163,16 +167,32 @@ public final class PlayerSkillList implements SkillList<Player> {
 	}
 
 	@Override
-	public boolean addLinkedSkill(Player player, int skillId) {
-		player.setLinkedSkill(skillId);
+	public boolean addLinkedSkill(Player player, int skillId, int skillLevel) {
+		if (skillLevel == 0){
+			skillLevel = 1;
+		}
+
+		int displayLevel = skillLevel > 0 ? skillLevel - 1 : 0;
+
 		SkillTemplate linked = DataManager.SKILL_DATA.getSkillTemplate(skillId);
-		PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_MSG_STIGMA_GET_LINKED_SKILL(
-				new DescriptionId(DataManager.SKILL_DATA.getSkillTemplate(linked.getSkillId()).getNameId()), 1));
-		return addSkill(player, skillId, 1, false, true, PersistentState.NOACTION);
+
+		PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_MSG_STIGMA_GET_LINKED_SKILL(new DescriptionId(DataManager.SKILL_DATA.getSkillTemplate(linked.getSkillId()).getNameId()), displayLevel));
+
+		return addSkill(player, skillId, skillLevel, false, true, PersistentState.NOACTION);
 	}
 
 	public boolean addStigmaSkill(Player player, int skillId, int skillLevel) {
 		return addSkill(player, skillId, skillLevel, true, false, PersistentState.NOACTION);
+	}
+
+	public void removeLinkedSkills() {
+		PlayerSkillEntry[] list = getLinkedSkills();
+
+		for (PlayerSkillEntry entry : list) {
+			if (entry != null) {
+				removeSkill(entry.getSkillId());
+			}
+		}
 	}
 
 	/**
@@ -242,8 +262,10 @@ public final class PlayerSkillList implements SkillList<Player> {
 		if (player.isSpawned()) {
 			sendMessage(player, skillId, isNew);
 		}
+
 		PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getBasicSkills()));
 		PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getLinkedSkills()));
+
 		return true;
 	}
 
@@ -338,10 +360,15 @@ public final class PlayerSkillList implements SkillList<Player> {
 	@Override
 	public synchronized boolean removeSkill(int skillId) {
 		PlayerSkillEntry entry = basicSkills.get(skillId);
+
 		if (entry == null) {
 			entry = stigmaSkills.get(skillId);
+		}
+
+		if (entry == null) {
 			entry = linkedSkills.get(skillId);
 		}
+
 		if (entry != null) {
 			entry.setPersistentState(PersistentState.DELETED);
 			deletedSkills.add(entry);
@@ -349,6 +376,7 @@ public final class PlayerSkillList implements SkillList<Player> {
 			stigmaSkills.remove(skillId);
 			linkedSkills.remove(skillId);
 		}
+
 		return entry != null;
 	}
 
@@ -365,9 +393,6 @@ public final class PlayerSkillList implements SkillList<Player> {
 		switch (skillId) {
 		case 30001:
 		case 30002:
-			PacketSendUtility.sendPacket(player,
-					new SM_SKILL_LIST(player.getSkillList().getSkillEntry(skillId), 1330005, false));
-			break;
 		case 30003:
 			PacketSendUtility.sendPacket(player,
 					new SM_SKILL_LIST(player.getSkillList().getSkillEntry(skillId), 1330005, false));

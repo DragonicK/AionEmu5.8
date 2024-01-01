@@ -298,7 +298,6 @@ public class Player extends Creature {
 	private PlayerWardrobeList wardrobe;
 	private PlayerLunaShop lunaShop;
 	private PlayerSweep shugoSweep;
-	private int linkedSkill;
 	private int stigmaSet;
 	private int goldenStarOfLodi;
 	private int unkPoint1;
@@ -2826,14 +2825,6 @@ public class Player extends Creature {
 
 	public void setOnAStation(boolean isOnAStation) {
 		this.isOnAStation = isOnAStation;
-	}
-
-	public int getLinkedSkill() {
-		return linkedSkill;
-	}
-
-	public void setLinkedSkill(int skillId) {
-		this.linkedSkill = skillId;
 	}
 
 	public int getStigmaSet() {

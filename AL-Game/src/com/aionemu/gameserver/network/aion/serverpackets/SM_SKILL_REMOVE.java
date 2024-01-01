@@ -49,7 +49,7 @@ public class SM_SKILL_REMOVE extends AionServerPacket {
 			writeC(skillLevel);
 			writeC(1);
 		} else if (isLinked) {
-			writeC(1);
+			writeC(skillLevel);
 			writeC(3);
 		} else { // remove skills active or passive
 			writeC(skillLevel);

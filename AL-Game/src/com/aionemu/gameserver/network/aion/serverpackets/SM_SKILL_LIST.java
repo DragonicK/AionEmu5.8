@@ -32,22 +32,29 @@ public class SM_SKILL_LIST extends AionServerPacket {
 	private Player player;
 	private int state;
 
-	public SM_SKILL_LIST(Player player, PlayerSkillEntry[] basicSkills) {
+	public SM_SKILL_LIST(Player player) {
 		this.player = player;
-		this.skillList = player.getSkillList().getBasicSkills();
+		this.skillList = player.getSkillList().getAllSkills();
 		this.messageId = 0;
 	}
 
-	public SM_SKILL_LIST(Player player, PlayerSkillEntry[] linkedSkills, int state) {
+	public SM_SKILL_LIST(Player player, PlayerSkillEntry[] skills) {
 		this.player = player;
-		this.skillList = player.getSkillList().getLinkedSkills();
+		this.skillList = skills;
+		this.messageId = 0;
+	}
+
+	public SM_SKILL_LIST(Player player, PlayerSkillEntry[] skills, int state) {
+		this.player = player;
+		this.skillList = skills;
 		this.state = state;
 		this.messageId = 0;
 		this.isNew = true;
 	}
 
-	public SM_SKILL_LIST(Player player, PlayerSkillEntry stigmaSkill) {
-		this.skillList = new PlayerSkillEntry[] { stigmaSkill };
+	public SM_SKILL_LIST(Player player, PlayerSkillEntry skill) {
+		this.player = player;
+		this.skillList = new PlayerSkillEntry[] { skill };
 		this.messageId = 0;
 	}
 
@@ -71,7 +78,14 @@ public class SM_SKILL_LIST extends AionServerPacket {
 		if (size > 0) {
 			for (PlayerSkillEntry entry : skillList) {
 				writeH(entry.getSkillId());
-				writeH(entry.getSkillLevel());
+
+				if (entry.isLinked() && entry.getSkillLevel() > 1) {
+					writeH(entry.getSkillLevel() + 1);
+				}
+				else {
+					writeH(entry.getSkillLevel());
+				}
+
 				writeC(0x00);
 				int extraLevel = entry.getExtraLvl();
 				writeC(extraLevel);

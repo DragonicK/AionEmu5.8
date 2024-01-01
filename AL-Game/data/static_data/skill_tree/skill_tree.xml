@@ -364,6 +364,8 @@
     <skill skillId="235" autoLearn="true" name="Boost Magic Suppression III" minLevel="60" skillLevel="1" race="PC_ALL" classId="CLERIC"/>
     <skill skillId="363" autoLearn="true" name="Winged Recovery I" minLevel="10" skillLevel="1" race="PC_ALL" classId="CLERIC"/>
     <skill skillId="362" autoLearn="true" name="Winged Blessing I" minLevel="25" skillLevel="1" race="PC_ALL" classId="CLERIC"/>
+    <skill skillId="1838" autoLearn="true" name="Healing Light" minLevel="1" skillLevel="1" race="PC_ALL" classId="CLERIC"/>
+    <skill skillId="1839" autoLearn="true" name="Healing Light" minLevel="6" skillLevel="1" race="PC_ALL" classId="CLERIC"/>
     <skill skillId="1840" autoLearn="true" name="Healing Light" minLevel="11" skillLevel="1" race="PC_ALL" classId="CLERIC"/>
     <skill skillId="1841" autoLearn="true" name="Healing Light" minLevel="16" skillLevel="1" race="PC_ALL" classId="CLERIC"/>
     <skill skillId="1842" autoLearn="true" name="Healing Light" minLevel="21" skillLevel="1" race="PC_ALL" classId="CLERIC"/>
