@@ -36,13 +36,7 @@ public class PanelCp {
 	@XmlAttribute(name = "panelType", required = true)
 	private PanelCpType panelCpType;
 	@XmlAttribute
-	protected int learnSkill;
-	@XmlAttribute
-	protected int additionalSkill;
-	@XmlAttribute
 	protected int statsId;
-	@XmlAttribute
-	protected int skillId;
 	@XmlAttribute
 	protected int statValue;
 	@XmlAttribute
@@ -72,20 +66,8 @@ public class PanelCp {
 		return panelCpType;
 	}
 
-	public int getLearnSkill() {
-		return learnSkill;
-	}
-
-	public int getAdditionalSkill() {
-		return additionalSkill;
-	}
-
 	public int getStatsId() {
 		return statsId;
-	}
-
-	public int getSkillId() {
-		return skillId;
 	}
 
 	public int getStatValue() {

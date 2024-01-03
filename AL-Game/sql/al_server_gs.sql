@@ -754,7 +754,6 @@ CREATE TABLE `players` (
   `frenzy_points` int(4) DEFAULT '0',
   `frenzy_count` int(1) DEFAULT '0',
   `toc_floor` int(11) DEFAULT '0',
-  `stone_cp` int(10) NOT NULL DEFAULT '0',
   `minion_skill_points` int(5) NOT NULL DEFAULT '0',
   `minion_function_time` timestamp NULL DEFAULT NULL,  
   PRIMARY KEY (`id`),

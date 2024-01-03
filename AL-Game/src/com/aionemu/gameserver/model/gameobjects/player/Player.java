@@ -346,6 +346,7 @@ public class Player extends Creature {
 	private boolean isGmMode = false;
 	private long creationDay;
 	private int cp_step = 0;
+	private int estimaCreativityPoint;
 
 	public long getCreationDate() {
 		Timestamp creationDate = playerCommonData.getCreationDate();
@@ -2868,12 +2869,12 @@ public class Player extends Creature {
 		this.cp_step = step;
 	}
 
-	public int getStoneCreativityPoint() {
-		return getCommonData().getStoneCreativityPoint();
+	public int getEstimaCreativityPoint() {
+		return this.estimaCreativityPoint;
 	}
 
-	public void setStoneCreativityPoint(int point) {
-		getCommonData().setStoneCreativityPoint(point);
+	public void setEstimaCreativityPoint(int point) {
+		this.estimaCreativityPoint = point;
 	}
 
 	public int getCPSlot1() {

@@ -110,7 +110,7 @@ public class MySQL5PlayerDAO extends PlayerDAO
 		Connection con = null;
 		try {
 			con = DatabaseFactory.getConnection();
-			PreparedStatement stmt = con.prepareStatement("UPDATE players SET name=?, exp=?, recoverexp=?, x=?, y=?, z=?, heading=?, world_id=?, gender=?, race=?, player_class=?, last_online=?, quest_expands=?, npc_expands=?, advenced_stigma_slot_size=?, warehouse_size=?, note=?, title_id=?, bonus_title_id=?, dp=?, soul_sickness=?, mailbox_letters=?, reposte_energy=?, mentor_flag_time=?, world_owner=?, stamps=?, rewarded_pass=?, last_stamp=?, passport_time=?, is_archdaeva=?, aura_of_growth=?, join_legion_id=?, join_state=?, berdin_star=?, abyss_favor=?, frenzy_points=?, frenzy_count=?, toc_floor=?, stone_cp=?, minion_skill_points=?, minion_function_time=? WHERE id=?");
+			PreparedStatement stmt = con.prepareStatement("UPDATE players SET name=?, exp=?, recoverexp=?, x=?, y=?, z=?, heading=?, world_id=?, gender=?, race=?, player_class=?, last_online=?, quest_expands=?, npc_expands=?, advenced_stigma_slot_size=?, warehouse_size=?, note=?, title_id=?, bonus_title_id=?, dp=?, soul_sickness=?, mailbox_letters=?, reposte_energy=?, mentor_flag_time=?, world_owner=?, stamps=?, rewarded_pass=?, last_stamp=?, passport_time=?, is_archdaeva=?, aura_of_growth=?, join_legion_id=?, join_state=?, berdin_star=?, abyss_favor=?, frenzy_points=?, frenzy_count=?, toc_floor=?, minion_skill_points=?, minion_function_time=? WHERE id=?");
 			log.debug("[DAO: MySQL5PlayerDAO] storing player " + player.getObjectId() + " " + player.getName());
 			PlayerCommonData pcd = player.getCommonData();
 			stmt.setString(1, player.getName());
@@ -153,10 +153,9 @@ public class MySQL5PlayerDAO extends PlayerDAO
 			stmt.setInt(36, player.getUpgradeArcade().getFrenzyPoints());
 			stmt.setInt(37, player.getUpgradeArcade().getFrenzyCount());
 			stmt.setInt(38, pcd.getFloor());
-			stmt.setInt(39, pcd.getStoneCreativityPoint());
-			stmt.setInt(40, pcd.getMinionSkillPoints());
-			stmt.setTimestamp(41, pcd.getMinionFunctionTime());
-			stmt.setInt(42, player.getObjectId());
+			stmt.setInt(39, pcd.getMinionSkillPoints());
+			stmt.setTimestamp(40, pcd.getMinionFunctionTime());
+			stmt.setInt(41, player.getObjectId());
 			stmt.execute();
 			stmt.close();
 		}
@@ -330,8 +329,7 @@ public class MySQL5PlayerDAO extends PlayerDAO
 				pua.setFrenzyPoints(resultSet.getInt("frenzy_points"));
 				pua.setFrenzyCount(resultSet.getInt("frenzy_count"));
 				cd.setFloor(resultSet.getInt("toc_floor"));
-				cd.setStoneCreativityPoint(resultSet.getInt("stone_cp"));
-				cd.setMinionSkillPoints(resultSet.getInt("minion_skill_points"));
+	     		cd.setMinionSkillPoints(resultSet.getInt("minion_skill_points"));
 				cd.setMinionFunctionTime(resultSet.getTimestamp("minion_function_time"));
 			}
 			resultSet.close();
