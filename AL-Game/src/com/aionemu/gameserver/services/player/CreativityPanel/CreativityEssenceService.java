@@ -537,25 +537,11 @@ public class CreativityEssenceService {
 	}
 
 	private int getUsedCpBySkillLevel(int level) {
-		switch (level) {
-			case 1: return 1;
-			case 2: return 3;
-			case 3: return 6;
-			case 4: return 10;
-			case 5: return 15;
-			case 6: return 20;
-			case 7: return 25;
-			case 8: return 30;
-			case 9: return 35;
-			case 10: return 40;
-			case 11: return 45;
-			case 12: return 50;
-			case 13: return 55;
-			case 14: return 60;
-			case 15: return 65;
+		if (level >= 5) {
+			return 5 * (level - 2);
 		}
 
-	 	return 0;
+		return (level * (1 + level)) / 2;
 	}
 
 	public static CreativityEssenceService getInstance() {
