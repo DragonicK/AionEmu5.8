@@ -37,6 +37,9 @@ public class StoneCP {
 	@XmlAttribute
 	protected int cp;
 
+	@XmlAttribute
+	protected int rate;
+
 	public int getId() {
 		return this.id;
 	}

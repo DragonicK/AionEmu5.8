@@ -86,7 +86,6 @@ public class PlayerCommonData extends VisibleObjectTemplate {
 	private PlayerPassports completedPassports;
 	private boolean isArchDaeva = false;
 	private int creativityPoint;
-	private int stoneCreativityPoint;
 	private int joinRequestLegionId = 0;
 	private LegionJoinRequestState joinRequestState = LegionJoinRequestState.NONE;
 	private PlayerUpgradeArcade upgradeArcade;
@@ -798,14 +797,6 @@ public class PlayerCommonData extends VisibleObjectTemplate {
 
 	public void setCreativityPoint(int point) {
 		this.creativityPoint = point;
-	}
-
-	public int getStoneCreativityPoint() {
-		return stoneCreativityPoint;
-	}
-
-	public void setStoneCreativityPoint(int point) {
-		this.stoneCreativityPoint = point;
 	}
 
 	public int getJoinRequestLegionId() {

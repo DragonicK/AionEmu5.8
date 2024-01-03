@@ -304,6 +304,7 @@ public final class DataManager {
 		TOWER_REWARD_DATA = data.towerReward;
 		SHUGO_SWEEP_REWARD_DATA = data.shugoSweepsRewardData;
 		SKILL_SKIN_DATA = data.skillSkinData;
+		STONE_CP_DATA = data.stoneCp;
 		String timeMsg = (time / 1000) + " seconds";
 		log.info("##### [load time: " + timeMsg + "] #####");
 		log.info("##### End Loading Static Data 5.8 #####");

@@ -21,11 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.*;
 
 import com.aionemu.gameserver.model.templates.panel_cp.StoneCP;
 
@@ -40,6 +36,9 @@ public class StoneCpData {
 	@XmlElement(name = "stone_cp")
 	private List<StoneCP> stonelist;
 
+	@XmlAttribute(name = "maxLevel")
+	private int maxLevel;
+
 	@XmlTransient
 	private TIntObjectHashMap<StoneCP> stoneData = new TIntObjectHashMap<StoneCP>();
 
@@ -51,6 +50,10 @@ public class StoneCpData {
 			stoneData.put(stoneCp.getId(), stoneCp);
 			stoneDataMap.put(stoneCp.getId(), stoneCp);
 		}
+	}
+
+	public int getMaximumLevel() {
+		return this.maxLevel;
 	}
 
 	public int size() {

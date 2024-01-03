@@ -3,15 +3,16 @@
 	Stone Cp 5.8
 	Made By (Encom)
  -->
-<stones_cp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="stone_cp.xsd">
-    <stone_cp id="1" name="Stone + 1" cp="2"/>
-    <stone_cp id="2" name="Stone + 2" cp="3"/>
-    <stone_cp id="3" name="Stone + 3" cp="4"/>
-    <stone_cp id="4" name="Stone + 4" cp="5"/>
-    <stone_cp id="5" name="Stone + 5" cp="6"/>
-    <stone_cp id="6" name="Stone + 6" cp="8"/>
-    <stone_cp id="7" name="Stone + 7" cp="10"/>
-    <stone_cp id="8" name="Stone + 8" cp="12"/>
-    <stone_cp id="9" name="Stone + 9" cp="14"/>
-    <stone_cp id="10" name="Stone + 10" cp="17"/>
+<stones_cp maxLevel="10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="stone_cp.xsd">
+    <stone_cp id="0" name="Essence Core + 0" cp="1" rate="100"/>
+    <stone_cp id="1" name="Essence Core + 1" cp="2" rate="100"/>
+    <stone_cp id="2" name="Essence Core + 2" cp="3" rate="100"/>
+    <stone_cp id="3" name="Essence Core + 3" cp="4" rate="100"/>
+    <stone_cp id="4" name="Essence Core + 4" cp="5" rate="100"/>
+    <stone_cp id="5" name="Essence Core + 5" cp="6" rate="100"/>
+    <stone_cp id="6" name="Essence Core + 6" cp="8" rate="100"/>
+    <stone_cp id="7" name="Essence Core + 7" cp="10" rate="100"/>
+    <stone_cp id="8" name="Essence Core + 8" cp="12" rate="100"/>
+    <stone_cp id="9" name="Essence Core + 9" cp="14" rate="100"/>
+    <stone_cp id="10" name="Essence Core + 10" cp="17" rate="100"/>
 </stones_cp>

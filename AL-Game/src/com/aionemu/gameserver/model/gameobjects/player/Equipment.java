@@ -25,6 +25,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import com.aionemu.gameserver.model.templates.item.*;
+import com.aionemu.gameserver.services.player.CreativityPanel.CreativityEssenceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -249,6 +250,10 @@ public class Equipment {
 			item.setEquipmentSlot(itemSlotToEquip);
 			ItemPacketService.updateItemAfterEquip(owner, item);
 
+			if (item.getEquipmentType() == EquipType.ESTIMA) {
+				CreativityEssenceService.getInstance().onNotifyEstimaChanges(owner);
+			}
+
 			// update stats
 			notifyItemEquipped(item);
 			owner.getLifeStats().updateCurrentStats();
@@ -323,10 +328,18 @@ public class Equipment {
 				PacketSendUtility.sendPacket(owner, new SM_EMOTION(owner, EmotionType.POWERSHARD_OFF, 0, 0));
 			}
 
-			if (!StigmaService.notifyUnequipAction(owner, itemToUnequip)
-					&& itemToUnequip.getItemTemplate().isStigma()) {
-				return null;
+			if (itemToUnequip.getItemTemplate().isEstima()) {
+				if (!CreativityEssenceService.getInstance().canUnequipEstima(owner, itemToUnequip)) {
+					return null;
+				}
 			}
+
+			if (itemToUnequip.getItemTemplate().isStigma()) {
+				if (!StigmaService.notifyUnequipAction(owner, itemToUnequip)){
+					return null;
+				}
+			}
+
 			unEquip(itemToUnequip.getEquipmentSlot());
 
 			return itemToUnequip;
@@ -356,6 +369,10 @@ public class Equipment {
 		owner.getLifeStats().updateCurrentStats();
 		owner.getGameStats().updateStatsAndSpeedVisually();
 		owner.getInventory().put(item);
+
+		if (item.getEquipmentType() == EquipType.ESTIMA) {
+			CreativityEssenceService.getInstance().onNotifyEstimaChanges(owner);
+		}
 	}
 
 	/**
@@ -374,8 +391,7 @@ public class Equipment {
 	 * Used during equip process and analyzes equipped slots
 	 * 
 	 * @param item
-	 * @param itemInMainHand
-	 * @param itemInSubHand
+	 * @param validateOnly
 	 * @return
 	 */
 	private boolean validateEquippedWeapon(Item item, boolean validateOnly) {
@@ -515,7 +531,7 @@ public class Equipment {
 	 * Used during equip process and analyzes equipped slots
 	 * 
 	 * @param item
-	 * @param itemInMainHand
+	 * @param validateOnly
 	 * @return
 	 */
 	private boolean validateEquippedArmor(Item item, boolean validateOnly) {

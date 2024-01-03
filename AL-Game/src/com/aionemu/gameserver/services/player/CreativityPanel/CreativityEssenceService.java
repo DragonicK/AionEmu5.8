@@ -18,9 +18,13 @@ package com.aionemu.gameserver.services.player.CreativityPanel;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.aionemu.gameserver.dataholders.PanelCpData;
+import com.aionemu.gameserver.dataholders.StoneCpData;
 import com.aionemu.gameserver.model.Race;
+import com.aionemu.gameserver.model.gameobjects.Item;
 import com.aionemu.gameserver.model.templates.panel_cp.PanelCpSkill;
 import com.aionemu.gameserver.model.templates.panel_cp.PanelCpType;
+import com.aionemu.gameserver.model.templates.panel_cp.StoneCP;
 import com.aionemu.gameserver.network.aion.serverpackets.*;
 import com.aionemu.gameserver.questEngine.model.QuestStatus;
 import javolution.util.FastMap;
@@ -171,16 +175,13 @@ public class CreativityEssenceService {
 
 	public void onLogin(Player player) {
 		if (player.isArchDaeva()) {
-			int creativityPoints = getCreativityPoints(player);
+			// Update CP from level, exp, stima.
+			onNotifyEstimaChanges(player);
+
 			int currentLevelPoint = getPointsFromCurrentStep(player);
 			int clientStep = getClientStep(player.getLevel(), currentLevelPoint);
 
-			if (creativityPoints > ArchDaevaConfig.CP_LIMIT_MAX) {
-				creativityPoints = ArchDaevaConfig.CP_LIMIT_MAX;
-			}
-
 			player.setCPStep(clientStep);
-			player.setCreativityPoint(creativityPoints);
 
 			PlayerCPEntry[] entries = player.getCP().getAllCP();
 
@@ -208,7 +209,7 @@ public class CreativityEssenceService {
 			}
 
 			PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getAllSkills()));
-			PacketSendUtility.sendPacket(player, new SM_CREATIVITY_POINTS(creativityPoints, clientStep, player.getCP().getAllCP()));
+			PacketSendUtility.sendPacket(player, new SM_CREATIVITY_POINTS(player.getCreativityPoint(), clientStep, player.getCP().getAllCP()));
 		}
 	}
 
@@ -216,6 +217,8 @@ public class CreativityEssenceService {
 		if (player.isArchDaeva()) {
 			int creativityPoints = getCreativityPoints(player);
 			int oldCreativityPoints = player.getCreativityPoint();
+
+			creativityPoints += player.getEstimaCreativityPoint();
 
 			if (oldCreativityPoints != creativityPoints) {
 				int currentLevelPoint = getPointsFromCurrentStep(player);
@@ -225,9 +228,21 @@ public class CreativityEssenceService {
 					creativityPoints = ArchDaevaConfig.CP_LIMIT_MAX;
 				}
 
+				player.getCommonData().addAuraOfGrowth(1060000 * 10);
+
 				player.setCPStep(clientStep);
 				player.setCreativityPoint(creativityPoints);
 
+				int rest = creativityPoints - oldCreativityPoints;
+
+				if (rest < 0) {
+					rest *= -1;
+				}
+
+				// You have gained Essence.
+				PacketSendUtility.sendPacket(player, SM_SYSTEM_MESSAGE.STR_MSG_GET_CP(rest));
+
+				PacketSendUtility.sendPacket(player, new SM_STATS_INFO(player));
 				PacketSendUtility.sendPacket(player, new SM_CREATIVITY_POINTS(creativityPoints, clientStep));
 			}
 		}
@@ -277,12 +292,92 @@ public class CreativityEssenceService {
 		PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getAllSkills()));
 	}
 
-	public void onEquipEstima(Player player) {
+	public boolean canUnequipEstima(Player player, Item item) {
+		int usedPoints = 0;
 
+		for (PlayerCPEntry entry : player.getCP().getAllCP()) {
+			int level = entry.getPoint();
+
+			PanelCp pcp = DataManager.PANEL_CP_DATA.getPanelCpId(entry.getSlot());
+
+			switch (pcp.getPanelCpType()) {
+				case LEARN_SKILL:
+					usedPoints += pcp.getCost();
+					break;
+				case ENCHANT_SKILL:
+					int cost = pcp.getCost();
+					int costAdj = pcp.getCostAdj();
+
+					if (cost > 0) {
+						usedPoints += getUsedCpBySkillLevel(level);
+					}
+					else {
+						usedPoints += (level * costAdj);
+					}
+					break;
+				case STAT_UP:
+					usedPoints += entry.getPoint();
+					break;
+			}
+		}
+
+		StoneCpData cpData = DataManager.STONE_CP_DATA;
+
+		int enchantLevel = item.getEnchantLevel();
+
+		if (enchantLevel > cpData.getMaximumLevel()) {
+			enchantLevel = cpData.getMaximumLevel();
+		}
+
+		StoneCP estima = DataManager.STONE_CP_DATA.getStoneCpId(enchantLevel);
+
+		if (estima == null) {
+			return true;
+		}
+
+		int result = player.getCreativityPoint() - usedPoints - estima.getCP();
+
+		if (result < 0) {
+			PacketSendUtility.sendPacket(player, new SM_SYSTEM_MESSAGE(1403639,  "Essence Core", result * -1));
+		}
+
+		return result >= 0;
 	}
 
-	public void onUnequipEstima(Player player) {
+	public void onNotifyEstimaChanges(Player player) {
+		int creativityPoints = getCreativityPointsFromEstima(player);
 
+		player.setEstimaCreativityPoint(creativityPoints);
+
+		creativityPoints += getCreativityPoints(player);
+
+		if (creativityPoints > ArchDaevaConfig.CP_LIMIT_MAX) {
+			creativityPoints = ArchDaevaConfig.CP_LIMIT_MAX;
+		}
+
+		player.setCreativityPoint(creativityPoints);
+
+		PacketSendUtility.sendPacket(player, new SM_CREATIVITY_POINTS(creativityPoints, player.getCPStep(), player.getCP().getAllCP()));
+	}
+
+	private int getCreativityPointsFromEstima(Player player) {
+		int points = 0;
+
+		for (Item item : player.getEquipment().getEquippedItemsEstima()) {
+			int enchantLevel = item.getEnchantLevel();
+
+			if (enchantLevel > 10) {
+				enchantLevel = 10;
+			}
+
+			StoneCP estima = DataManager.STONE_CP_DATA. getStoneCpId(enchantLevel);
+
+			if (estima != null) {
+				points += estima.getCP();
+			}
+		}
+
+		return points;
 	}
 
 	// Get the total of creativity points.
@@ -441,77 +536,27 @@ public class CreativityEssenceService {
 		}
 	}
 
-//	public void addEstimaCp(Player player, int objId) {
-//		estimaCp = 1;
-//
-//		Item addEstima = player.getEquipment().getEquippedItemByObjId(objId);
-//
-//		if (addEstima != null) {
-//			switch (addEstima.getEnchantLevel()) {
-//			case 6:
-//				estimaCp = 8;
-//				break;
-//			case 7:
-//				estimaCp = 10;
-//				break;
-//			case 8:
-//				estimaCp = 12;
-//				break;
-//			case 9:
-//				estimaCp = 14;
-//				break;
-//			case 10:
-//				estimaCp = 17;
-//				break;
-//			default:
-//				estimaCp = (addEstima.getEnchantLevel() + 1);
-//				break;
-//			}
-//		}
-//
-//		currentCp = player.getCreativityPoint();
-//
-//		int totalCp = (currentCp + estimaCp);
-//		player.setCreativityPoint(totalCp);
-//
-//		int size = DAOManager.getDAO(PlayerCreativityPointsDAO.class).getSlotSize(player.getObjectId());
-//
-//	//	PacketSendUtility.sendPacket(player, new SM_CREATIVITY_POINTS(totalCp, player.getCPStep()));
-//	//	PacketSendUtility.sendPacket(player, new SM_CREATIVITY_POINTS(player.getCreativityPoint(), player.getCPStep(), size, false));
-//	}
+	private int getUsedCpBySkillLevel(int level) {
+		switch (level) {
+			case 1: return 1;
+			case 2: return 3;
+			case 3: return 6;
+			case 4: return 10;
+			case 5: return 15;
+			case 6: return 20;
+			case 7: return 25;
+			case 8: return 30;
+			case 9: return 35;
+			case 10: return 40;
+			case 11: return 45;
+			case 12: return 50;
+			case 13: return 55;
+			case 14: return 60;
+			case 15: return 65;
+		}
 
-//	public void removeEstimaCp(Player player, int objId) {
-//		estimaCp = 0;
-//		Item removedEstima = player.getInventory().getItemByObjId(objId);
-//		if (removedEstima != null) {
-//			switch (removedEstima.getEnchantLevel()) {
-//			case 6:
-//				estimaCp = 8;
-//				break;
-//			case 7:
-//				estimaCp = 10;
-//				break;
-//			case 8:
-//				estimaCp = 12;
-//				break;
-//			case 9:
-//				estimaCp = 14;
-//				break;
-//			case 10:
-//				estimaCp = 17;
-//				break;
-//			default:
-//				estimaCp = (removedEstima.getEnchantLevel() + 1);
-//				break;
-//			}
-//		}
-//		currentCp = player.getCreativityPoint();
-//		int totalCp = (currentCp - estimaCp);
-//		player.setCreativityPoint(totalCp);
-//		int size = DAOManager.getDAO(PlayerCreativityPointsDAO.class).getSlotSize(player.getObjectId());
-//		//PacketSendUtility.sendPacket(player, new SM_CREATIVITY_POINTS(totalCp, player.getCPStep()));
-//		//PacketSendUtility.sendPacket(player,				new SM_CREATIVITY_POINTS(player.getCreativityPoint(), player.getCPStep(), size, false));
-//	}
+	 	return 0;
+	}
 
 	public static CreativityEssenceService getInstance() {
 		return NewSingletonHolder.INSTANCE;
