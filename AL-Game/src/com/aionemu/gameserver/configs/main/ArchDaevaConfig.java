@@ -26,6 +26,15 @@ public class ArchDaevaConfig {
 	@Property(key = "gameserver.max.cp.limit", defaultValue = "1000")
 	public static int CP_LIMIT_MAX;
 
+	@Property(key = "gameserver.cp.starter", defaultValue = "1")
+	public static int CP_STARTER;
+
+	@Property(key = "gameserver.cp.per.level", defaultValue = "6")
+	public static int CP_PER_LEVEL;
+
+	@Property(key = "gameserver.cp.per.exp.step", defaultValue = "1")
+	public static int CP_PER_EXP_STEP;
+
 	@Property(key = "gameserver.item.not.for.highdaeva.enable", defaultValue = "false")
 	public static boolean ITEM_NOT_FOR_HIGHDAEVA_ENABLE;
 }

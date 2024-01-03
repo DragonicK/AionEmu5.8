@@ -16,17 +16,18 @@
  */
 package com.aionemu.gameserver.model.templates.panel_cp;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlType;
+import com.aionemu.gameserver.model.Race;
+
+import javax.xml.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Rinzler (Encom)
  */
 
 @XmlType(name = "panel_cp")
-@XmlAccessorType(XmlAccessType.NONE)
+@XmlAccessorType(XmlAccessType.FIELD)
 public class PanelCp {
 	@XmlAttribute
 	protected int id;
@@ -56,6 +57,8 @@ public class PanelCp {
 	protected int preEnchantCount;
 	@XmlAttribute
 	protected int minLevel;
+	@XmlElement(name = "panel_cp_skill")
+	private List<PanelCpSkill> skills;
 
 	public int getId() {
 		return this.id;
@@ -111,5 +114,9 @@ public class PanelCp {
 
 	public int getMinLevel() {
 		return minLevel;
+	}
+
+	public List<PanelCpSkill> getSkills() {
+		return this.skills;
 	}
 }

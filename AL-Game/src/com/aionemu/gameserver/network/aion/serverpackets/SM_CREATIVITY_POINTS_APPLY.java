@@ -27,31 +27,11 @@ import com.aionemu.gameserver.network.aion.AionServerPacket;
  * @Rework Xnemonix
  */
 public class SM_CREATIVITY_POINTS_APPLY extends AionServerPacket {
-
 	Logger log = LoggerFactory.getLogger(SM_CREATIVITY_POINTS_APPLY.class);
-
-	private int type;
-	private int size;
 	private int id;
 	private int slotPoint;
 
-	public SM_CREATIVITY_POINTS_APPLY(int type, int size) {
-		this.type = type;
-		this.size = size;
-	}
-
-	public SM_CREATIVITY_POINTS_APPLY(int type) {
-		this.type = type;
-	}
-
-	public SM_CREATIVITY_POINTS_APPLY(int type, int id, int slotPoint) {
-		this.id = id;
-		this.slotPoint = slotPoint;
-	}
-
-	public SM_CREATIVITY_POINTS_APPLY(int type, int size, int id, int slotPoint) {
-		this.type = type;
-		this.size = size;
+	public SM_CREATIVITY_POINTS_APPLY(int id, int slotPoint) {
 		this.id = id;
 		this.slotPoint = slotPoint;
 	}
@@ -59,16 +39,8 @@ public class SM_CREATIVITY_POINTS_APPLY extends AionServerPacket {
 	@Override
 	protected void writeImpl(AionConnection con) {
 		writeH(0x01);
-		writeH(0x01); // No Loop should only return 1
-		switch (type) {
-		case 0:
-			writeD(id);
-			writeH(slotPoint);
-			break;
-		case 1:
-			writeD(id);
-			writeH(slotPoint);
-			break;
-		}
+		writeH(0x1); // 0x01 No Loop should only return 1
+		writeD(id);
+		writeH(slotPoint);
 	}
 }

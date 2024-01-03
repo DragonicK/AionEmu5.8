@@ -98,6 +98,7 @@ import com.aionemu.gameserver.model.templates.item.ItemTemplate;
 import com.aionemu.gameserver.services.LegionService;
 import com.aionemu.gameserver.services.PunishmentService.PunishmentType;
 import com.aionemu.gameserver.services.SkillLearnService;
+import com.aionemu.gameserver.services.events.ShugoSweepService;
 import com.aionemu.gameserver.services.item.ItemFactory;
 import com.aionemu.gameserver.services.item.ItemService;
 import com.aionemu.gameserver.utils.collections.cachemap.CacheMap;
@@ -137,6 +138,7 @@ public class PlayerService {
 		DAOManager.getDAO(PlayerPunishmentsDAO.class).storePlayerPunishments(player, PunishmentType.PRISON);
 		DAOManager.getDAO(PlayerPunishmentsDAO.class).storePlayerPunishments(player, PunishmentType.GATHER);
 		DAOManager.getDAO(InventoryDAO.class).store(player);
+
 		for (House house : player.getHouses()) {
 			DAOManager.getDAO(HousesDAO.class).storeHouse(house);
 			if (house.getRegistry() != null
@@ -145,6 +147,7 @@ public class PlayerService {
 						player.getCommonData().getPlayerObjId());
 			}
 		}
+
 		DAOManager.getDAO(ItemStoneListDAO.class).save(player);
 		DAOManager.getDAO(MailDAO.class).storeMailbox(player);
 		DAOManager.getDAO(PortalCooldownsDAO.class).storePortalCooldowns(player);
@@ -152,6 +155,7 @@ public class PlayerService {
 		DAOManager.getDAO(PlayerNpcFactionsDAO.class).storeNpcFactions(player);
 		DAOManager.getDAO(PlayerLunaShopDAO.class).store(player);
 		DAOManager.getDAO(EventItemsDAO.class).loadItems(player);
+		DAOManager.getDAO(PlayerCreativityPointsDAO.class).store(player);
 	}
 
 	public static Player getPlayer(int playerObjId, Account account) {

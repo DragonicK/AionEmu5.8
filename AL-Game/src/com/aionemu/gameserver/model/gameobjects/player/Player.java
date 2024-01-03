@@ -345,7 +345,7 @@ public class Player extends Creature {
 	// This variables are for the custom RP and GM system
 	private boolean isGmMode = false;
 	private long creationDay;
-
+	private int cp_step = 0;
 
 	public long getCreationDate() {
 		Timestamp creationDate = playerCommonData.getCreationDate();
@@ -2800,9 +2800,6 @@ public class Player extends Creature {
 		return playerCommonData.getUpgradeArcade();
 	}
 
-	public void setPlayerUpgradeArcade(PlayerUpgradeArcade pua) {
-	}
-
 	public void setPlayerLunaShop(PlayerLunaShop pls) {
 		this.lunaShop = pls;
 	}
@@ -2864,11 +2861,11 @@ public class Player extends Creature {
 	}
 
 	public int getCPStep() {
-		return getCommonData().getCPStep();
+		return cp_step;
 	}
 
 	public void setCPStep(int step) {
-		getCommonData().setCPStep(step);
+		this.cp_step = step;
 	}
 
 	public int getStoneCreativityPoint() {

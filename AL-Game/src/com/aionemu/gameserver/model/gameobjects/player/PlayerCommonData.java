@@ -86,7 +86,6 @@ public class PlayerCommonData extends VisibleObjectTemplate {
 	private PlayerPassports completedPassports;
 	private boolean isArchDaeva = false;
 	private int creativityPoint;
-	private int cp_step = 0;
 	private int stoneCreativityPoint;
 	private int joinRequestLegionId = 0;
 	private LegionJoinRequestState joinRequestState = LegionJoinRequestState.NONE;
@@ -277,7 +276,9 @@ public class PlayerCommonData extends VisibleObjectTemplate {
 				reward += repose;
 			}
 		}
+
 		setExp(exp + reward, false);
+
 		if ((getPlayer() != null) && (rewardType != null)) {
 			switch (rewardType) {
 			case HUNTING:
@@ -341,9 +342,6 @@ public class PlayerCommonData extends VisibleObjectTemplate {
 				break;
 			default:
 				break;
-			}
-			if (this.isArchDaeva()) {
-				CreativityEssenceService.getInstance().pointPerExp(this.getPlayer());
 			}
 		}
 	}
@@ -420,6 +418,7 @@ public class PlayerCommonData extends VisibleObjectTemplate {
 		if (exp > maxExp) {
 			exp = maxExp;
 		}
+
 		int oldLvl = this.level;
 		this.exp = exp;
 		boolean up = false;
@@ -454,6 +453,10 @@ public class PlayerCommonData extends VisibleObjectTemplate {
 					new SM_STATUPDATE_EXP(getExpShown(), getExpRecoverable(), getExpNeed(),
 							this.getCurrentReposteEnergy(), this.getMaxReposteEnergy(), this.getBerdinStar(),
 							this.getAuraOfGrowth()));
+		}
+
+		if (this.isArchDaeva()) {
+			CreativityEssenceService.getInstance().onExperienceChanged(getPlayer());
 		}
 	}
 
@@ -795,14 +798,6 @@ public class PlayerCommonData extends VisibleObjectTemplate {
 
 	public void setCreativityPoint(int point) {
 		this.creativityPoint = point;
-	}
-
-	public int getCPStep() {
-		return cp_step;
-	}
-
-	public void setCPStep(int step) {
-		this.cp_step = step;
 	}
 
 	public int getStoneCreativityPoint() {

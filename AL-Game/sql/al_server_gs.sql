@@ -746,7 +746,6 @@ CREATE TABLE `players` (
   `rewarded_pass` int(1) NOT NULL DEFAULT '0',
   `passport_time` bigint(25) NOT NULL DEFAULT '0',
   `is_archdaeva` tinyint(1) NOT NULL,
-  `creativity_point` int(11) NOT NULL DEFAULT '0',
   `aura_of_growth` bigint(20) NOT NULL DEFAULT '0',
   `join_legion_id` int(11) NOT NULL DEFAULT '0',
   `join_state` enum('NONE','DENIED','ACCEPTED') NOT NULL DEFAULT 'NONE',

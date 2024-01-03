@@ -29,11 +29,11 @@ public abstract class PlayerCreativityPointsDAO implements DAO {
 
 	public abstract PlayerCPList loadCP(Player paramPlayer);
 
+	public abstract boolean store(Player player);
+
 	public abstract boolean storeCP(int paramInt1, int paramInt2, int paramInt3);
 
 	public abstract boolean deleteCP(int playerObjId, int slot);
-
-	public abstract int getSlotSize(int playerId);
 
 	public abstract int getCPSlotObjId(int obj);
 }

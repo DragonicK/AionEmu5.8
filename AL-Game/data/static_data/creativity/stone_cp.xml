@@ -4,14 +4,14 @@
 	Made By (Encom)
  -->
 <stones_cp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="stone_cp.xsd">
-    <stone_cp id="1" name="Stone + 1" cp="1"/>
-    <stone_cp id="2" name="Stone + 2" cp="2"/>
-    <stone_cp id="3" name="Stone + 3" cp="3"/>
-    <stone_cp id="4" name="Stone + 4" cp="4"/>
-    <stone_cp id="5" name="Stone + 5" cp="5"/>
-    <stone_cp id="6" name="Stone + 6" cp="7"/>
-    <stone_cp id="7" name="Stone + 7" cp="9"/>
-    <stone_cp id="8" name="Stone + 8" cp="11"/>
-    <stone_cp id="9" name="Stone + 9" cp="13"/>
-    <stone_cp id="10" name="Stone + 10" cp="16"/>
+    <stone_cp id="1" name="Stone + 1" cp="2"/>
+    <stone_cp id="2" name="Stone + 2" cp="3"/>
+    <stone_cp id="3" name="Stone + 3" cp="4"/>
+    <stone_cp id="4" name="Stone + 4" cp="5"/>
+    <stone_cp id="5" name="Stone + 5" cp="6"/>
+    <stone_cp id="6" name="Stone + 6" cp="8"/>
+    <stone_cp id="7" name="Stone + 7" cp="10"/>
+    <stone_cp id="8" name="Stone + 8" cp="12"/>
+    <stone_cp id="9" name="Stone + 9" cp="14"/>
+    <stone_cp id="10" name="Stone + 10" cp="17"/>
 </stones_cp>
