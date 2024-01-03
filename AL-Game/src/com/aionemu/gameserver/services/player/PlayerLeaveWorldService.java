@@ -19,6 +19,7 @@ package com.aionemu.gameserver.services.player;
 import java.sql.Timestamp;
 
 import com.aionemu.gameserver.dao.*;
+import com.aionemu.gameserver.services.player.CreativityPanel.CreativityEssenceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,6 +80,7 @@ public class PlayerLeaveWorldService {
 						: "Disconnected"));
 
 		StigmaLinkedService.onLogOut(player);
+		CreativityEssenceService.getInstance().onLogout(player);
 		FindGroupService.getInstance().removeFindGroup(player.getRace(), 0x00, player.getObjectId());
 		FindGroupService.getInstance().removeFindGroup(player.getRace(), 0x04, player.getObjectId());
 		player.onLoggedOut();
@@ -109,6 +111,7 @@ public class PlayerLeaveWorldService {
 		DAOManager.getDAO(HouseObjectCooldownsDAO.class).storeHouseObjectCooldowns(player);
 		DAOManager.getDAO(PlayerLifeStatsDAO.class).updatePlayerLifeStat(player);
 		DAOManager.getDAO(EventItemsDAO.class).storeItems(player);
+
 		// LUNA
 		LunaShopService.getInstance().onLogout(player);
 		// SHUGO SWEEP

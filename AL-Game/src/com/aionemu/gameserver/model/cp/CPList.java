@@ -1,5 +1,4 @@
 /*
-
  *
  *  Encom is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU Lesser Public License as published by
@@ -18,11 +17,11 @@ package com.aionemu.gameserver.model.cp;
 
 import com.aionemu.gameserver.model.gameobjects.Creature;
 
-public interface CPList<T extends Creature> {
+public interface CPList {
 
-	boolean addPoint(T creature, int slot, int point);
+	boolean addPoint(int slot, int point);
 
-	boolean removePoint(T creature, int slot);
+	boolean removePoint(int slot);
 
 	int size();
 }

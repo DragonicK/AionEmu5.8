@@ -383,7 +383,6 @@ public final class PlayerEnterWorldService {
 			if (houseBuddies != null) {
 				client.sendPacket(new SM_UI_SETTINGS(houseBuddies, 2));
 			}
-			CreativityEssenceService.getInstance().onLogin(player);
 			sendItemInfos(client, player);
 			if (AStationConfig.A_STATION_ENABLE) {
 				AStationService.getInstance().checkAuthorizationRequest(player);
@@ -716,6 +715,7 @@ public final class PlayerEnterWorldService {
 			player.setBattleground(null);
 			player.getController().updateZone();
 			player.getController().updateNearbyQuests();
+			CreativityEssenceService.getInstance().onLogin(player);
 			AtreianBestiaryService.getInstance().onLogin(player);
 		} else {
 			log.info("[DEBUG] enter world" + objectId + ", Player: " + player);

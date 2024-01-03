@@ -70,6 +70,38 @@ public class MySQL5PlayerCreativityPointsDAO extends PlayerCreativityPointsDAO {
 	}
 
 	@Override
+	public boolean store(Player player) {
+		Connection con = null;
+		try {
+			con = DatabaseFactory.getConnection();
+
+			int objectId = player.getObjectId();
+
+			for (int i : player.getCP().getRemoveItems()) {
+				deleteCP(con, objectId, i);
+			}
+
+			for (PlayerCPEntry entry : player.getCP().getAllCP()) {
+				PreparedStatement stmt = con.prepareStatement(INSERT_OR_UPDATE);
+				stmt.setInt(1, objectId);
+				stmt.setInt(2, entry.getSlot());
+				stmt.setInt(3, entry.getPoint());
+				stmt.execute();
+				stmt.close();
+			}
+		}
+		catch (Exception e) {
+			log.error("Could not update / delete / insert for player " + player.getObjectId() + " from DB: " + e.getMessage(), e);
+			return false;
+		}
+		finally {
+			DatabaseFactory.close(con);
+		}
+
+		return true;
+	}
+
+	@Override
 	public boolean storeCP(int objectId, int slot, int point) {
 		Connection con = null;
 		try {
@@ -112,27 +144,20 @@ public class MySQL5PlayerCreativityPointsDAO extends PlayerCreativityPointsDAO {
 		return true;
 	}
 
-	@Override
-	public int getSlotSize(int playerObjId) {
-		Connection con = null;
-		int size = 0;
+	public boolean deleteCP(Connection con, int objectId, int slot) {
 		try {
-			con = DatabaseFactory.getConnection();
-			PreparedStatement stmt = con.prepareStatement("SELECT COUNT(*) AS `size` FROM `player_cp` WHERE `player_id`=?");
-			stmt.setInt(1, playerObjId);
-			ResultSet rs = stmt.executeQuery();
-			rs.next();
-			size = rs.getInt("size");
-			rs.close();
+			PreparedStatement stmt = con.prepareStatement(DELETE_QUERY);
+			stmt.setInt(1, objectId);
+			stmt.setInt(2, slot);
+			stmt.execute();
 			stmt.close();
 		}
 		catch (Exception e) {
-			return 0;
+			log.error("Could not delete CP for player " + objectId + " from DB: " + e.getMessage(), e);
+			return false;
 		}
-		finally {
-			DatabaseFactory.close(con);
-		}
-		return size;
+
+		return true;
 	}
 
 	@Override

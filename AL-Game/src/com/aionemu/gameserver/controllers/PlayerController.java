@@ -1078,7 +1078,8 @@ public class PlayerController extends CreatureController<Player> {
 		}
 
 		player.getNpcFactions().onLevelUp();
-		CreativityEssenceService.getInstance().pointPerLevel(player);
+
+		CreativityEssenceService.getInstance().onExperienceChanged(player);
 	}
 
 	public static final void reachedPlayerLvl(final Player player) {

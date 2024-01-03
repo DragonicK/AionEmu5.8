@@ -635,7 +635,6 @@ public class LunaShopService {
 	public void onLogout(Player player) {
 		PlayerLunaShop pls = player.getPlayerLunaShop();
 		pls.setPersistentState(PersistentState.UPDATE_REQUIRED);
-		DAOManager.getDAO(PlayerLunaShopDAO.class).store(player);
 	}
 
 	private int wardrobePrice(int WardrobeSlot) { // Done

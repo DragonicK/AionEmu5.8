@@ -16,6 +16,7 @@
  */
 package com.aionemu.gameserver.network.aion.clientpackets;
 
+import javolution.util.FastMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,9 @@ import com.aionemu.gameserver.services.player.CreativityPanel.CreativitySkillSer
 import com.aionemu.gameserver.services.player.CreativityPanel.CreativityStatsService;
 import com.aionemu.gameserver.utils.PacketSendUtility;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Falke_34
  */
@@ -43,9 +47,11 @@ public class CM_CREATIVITY_POINTS extends AionClientPacket {
 
 	private Player activePlayer;
 	private int type;
-	private int plusSize;
-	private int id;
-	private int point;
+	private int size;
+
+	private int maximum = -1;
+
+	private FastMap<Integer, Integer> values = new FastMap<>();
 
 	public CM_CREATIVITY_POINTS(int opcode, State state, State... restStates) {
 		super(opcode, state, restStates);
@@ -55,54 +61,23 @@ public class CM_CREATIVITY_POINTS extends AionClientPacket {
 	protected void readImpl() {
 		activePlayer = getConnection().getActivePlayer();
 		type = readC();
+
 		switch (type) {
 		case 0: // Apply
-			plusSize = readH();
-			for (int i = 0; i < plusSize; i++) {
-				id = readD();
-				point = readH();
-				PanelCp pcp = DataManager.PANEL_CP_DATA.getPanelCpId(id);
+			size = readH();
 
-				if (pcp.getPanelCpType() == PanelCpType.STAT_UP) {
-					if (point <= 255) {
-						CreativityStatsService.getInstance().onEssenceApply(activePlayer, type, plusSize, id, point);
-					} else if (point > 255) {
-						PacketSendUtility.sendBrightYellowMessageOnCenter(activePlayer,
-								"Essence bug detected... Please reset points or relog for solv this issue!");
-					}
-				} else if (pcp.getPanelCpType() == PanelCpType.LEARN_SKILL) {
-					CreativitySkillService.getInstance().learnSkill(activePlayer, id, point);
-				} else if (pcp.getPanelCpType() == PanelCpType.ENCHANT_SKILL) {
-					if (point > pcp.getCountMax()) {
-						log.warn("Allocated essence bug on enchant skill, allowed max point: " + pcp.getCountMax()
-								+ " Player Point: " + point + "Essence ID: " + id + " Player Name: "
-								+ activePlayer.getName());
-						return;
-					}
-					CreativitySkillService.getInstance().enchantSkill(activePlayer, id, point);
+			for (int i = 0; i < size; i++) {
+				int id = readD();
+				int point = readH();
+
+				if (id > maximum) {
+					maximum = id;
 				}
+
+				values.put(id, point);
 			}
-			PacketSendUtility.sendPacket(activePlayer, new SM_STATS_INFO(activePlayer));
-
-			if (activePlayer.getQuestStateList().getQuestState(20522) != null
-					&& activePlayer.getQuestStateList().getQuestState(20522).getStatus() == QuestStatus.START) {
-				activePlayer.getQuestStateList().getQuestState(20522).setQuestVar(0);
-				activePlayer.getQuestStateList().getQuestState(20522).setStatus(QuestStatus.REWARD);
-				PacketSendUtility.sendPacket(activePlayer, new SM_QUEST_ACTION(20522, 4, 0));
-
-			}
-
-			if (activePlayer.getQuestStateList().getQuestState(10522) != null
-					&& activePlayer.getQuestStateList().getQuestState(10522).getStatus() == QuestStatus.START) {
-				activePlayer.getQuestStateList().getQuestState(10522).setQuestVar(0);
-				activePlayer.getQuestStateList().getQuestState(10522).setStatus(QuestStatus.REWARD);
-				PacketSendUtility.sendPacket(activePlayer, new SM_QUEST_ACTION(10522, 4, 0));
-
-			}
-
 			break;
 		case 1: // Reset
-			plusSize = readH();
 			break;
 		default:
 			break;
@@ -117,8 +92,14 @@ public class CM_CREATIVITY_POINTS extends AionClientPacket {
 		if (activePlayer.getLifeStats().isAlreadyDead()) {
 			return;
 		}
+		if (type == 0) {
+			CreativityEssenceService.getInstance().onReiceveData(activePlayer, values, maximum);
+
+			maximum = -1;
+			values.clear();
+		}
 		if (type == 1) {
-			CreativityEssenceService.getInstance().onResetEssence(activePlayer, plusSize);
+			CreativityEssenceService.getInstance().onReset(activePlayer);
 		}
 	}
 }

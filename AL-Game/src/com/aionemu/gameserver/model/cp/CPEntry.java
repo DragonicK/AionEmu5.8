@@ -17,12 +17,18 @@
 package com.aionemu.gameserver.model.cp;
 
 public class CPEntry {
-
 	private int slot;
 	private int point;
 
 	public CPEntry(int slot, int point) {
 		this.slot = slot;
+		this.point = point;
+	}
+	public void setSlot(int slot) {
+		this.slot = slot;
+	}
+
+	public void setPoint(int point) {
 		this.point = point;
 	}
 
