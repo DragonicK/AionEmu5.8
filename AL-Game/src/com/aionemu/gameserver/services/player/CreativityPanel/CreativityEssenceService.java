@@ -292,50 +292,41 @@ public class CreativityEssenceService {
 		PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getAllSkills()));
 	}
 
-	public boolean canUnequipEstima(Player player, Item item) {
-		int usedPoints = 0;
+	public boolean canSwapEstima(Player player, Item newItem, Item oldItem) {
+		int newEstimaPoints = getEstimaPoints(newItem);
+		int oldEstimaPoints = getEstimaPoints(oldItem);
 
-		for (PlayerCPEntry entry : player.getCP().getAllCP()) {
-			int level = entry.getPoint();
-
-			PanelCp pcp = DataManager.PANEL_CP_DATA.getPanelCpId(entry.getSlot());
-
-			switch (pcp.getPanelCpType()) {
-				case LEARN_SKILL:
-					usedPoints += pcp.getCost();
-					break;
-				case ENCHANT_SKILL:
-					int cost = pcp.getCost();
-					int costAdj = pcp.getCostAdj();
-
-					if (cost > 0) {
-						usedPoints += getUsedCpBySkillLevel(level);
-					}
-					else {
-						usedPoints += (level * costAdj);
-					}
-					break;
-				case STAT_UP:
-					usedPoints += entry.getPoint();
-					break;
-			}
-		}
-
-		StoneCpData cpData = DataManager.STONE_CP_DATA;
-
-		int enchantLevel = item.getEnchantLevel();
-
-		if (enchantLevel > cpData.getMaximumLevel()) {
-			enchantLevel = cpData.getMaximumLevel();
-		}
-
-		StoneCP estima = DataManager.STONE_CP_DATA.getStoneCpId(enchantLevel);
-
-		if (estima == null) {
+		if (newEstimaPoints >= oldEstimaPoints) {
 			return true;
 		}
 
-		int result = player.getCreativityPoint() - usedPoints - estima.getCP();
+		int used = getConsumedPoints(player);
+		int free = player.getCreativityPoint() - used;
+		int diff = oldEstimaPoints - newEstimaPoints;
+
+		if (diff < 0) {
+			diff *= -1;
+		}
+
+		if (free >= diff) {
+			return true;
+		}
+
+		int rest = free - diff;
+
+		if (rest < 0) {
+			rest *= -1;
+		}
+
+		PacketSendUtility.sendPacket(player, new SM_SYSTEM_MESSAGE(1403639,  "Essence Core", rest));
+
+		return false;
+	}
+
+	public boolean canUnequipEstima(Player player, Item item) {
+		int used = getConsumedPoints(player);
+
+		int result = player.getCreativityPoint() - used - getEstimaPoints(item);
 
 		if (result < 0) {
 			PacketSendUtility.sendPacket(player, new SM_SYSTEM_MESSAGE(1403639,  "Essence Core", result * -1));
@@ -536,12 +527,58 @@ public class CreativityEssenceService {
 		}
 	}
 
+	private int getConsumedPoints(Player player) {
+		int usedPoints = 0;
+
+		for (PlayerCPEntry entry : player.getCP().getAllCP()) {
+			int level = entry.getPoint();
+
+			PanelCp pcp = DataManager.PANEL_CP_DATA.getPanelCpId(entry.getSlot());
+
+			switch (pcp.getPanelCpType()) {
+				case LEARN_SKILL:
+					usedPoints += pcp.getCost();
+					break;
+				case ENCHANT_SKILL:
+					int cost = pcp.getCost();
+					int costAdj = pcp.getCostAdj();
+
+					if (cost > 0) {
+						usedPoints += getUsedCpBySkillLevel(level);
+					}
+					else {
+						usedPoints += (level * costAdj);
+					}
+					break;
+				case STAT_UP:
+					usedPoints += entry.getPoint();
+					break;
+			}
+		}
+
+		return usedPoints;
+	}
+
 	private int getUsedCpBySkillLevel(int level) {
 		if (level >= 5) {
 			return 5 * (level - 2);
 		}
 
 		return (level * (1 + level)) / 2;
+	}
+
+	private int getEstimaPoints(Item item) {
+		StoneCpData cpData = DataManager.STONE_CP_DATA;
+
+		int enchantLevel = item.getEnchantLevel();
+
+		if (enchantLevel > cpData.getMaximumLevel()) {
+			enchantLevel = cpData.getMaximumLevel();
+		}
+
+		StoneCP estima = DataManager.STONE_CP_DATA.getStoneCpId(enchantLevel);
+
+		return estima.getCP();
 	}
 
 	public static CreativityEssenceService getInstance() {

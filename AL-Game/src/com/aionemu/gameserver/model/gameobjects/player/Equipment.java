@@ -180,6 +180,14 @@ public class Equipment {
 				}
 			}
 
+			if (item.getItemTemplate().isEstima()) {
+				if (equipment.get(slot) != null) {
+					if (!CreativityEssenceService.getInstance().canSwapEstima(owner, item, equipment.get(slot))) {
+						return null;
+					}
+				}
+			}
+
 			if (itemSlotToEquip == 0) {
 				itemSlotToEquip = possibleSlots[0].getSlotIdMask();
 			}
