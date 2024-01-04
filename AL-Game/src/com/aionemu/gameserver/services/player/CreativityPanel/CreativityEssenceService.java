@@ -175,14 +175,6 @@ public class CreativityEssenceService {
 
 	public void onLogin(Player player) {
 		if (player.isArchDaeva()) {
-			// Update CP from level, exp, stima.
-			onNotifyEstimaChanges(player);
-
-			int currentLevelPoint = getPointsFromCurrentStep(player);
-			int clientStep = getClientStep(player.getLevel(), currentLevelPoint);
-
-			player.setCPStep(clientStep);
-
 			PlayerCPEntry[] entries = player.getCP().getAllCP();
 
 			for (PlayerCPEntry entry : entries) {
@@ -209,7 +201,9 @@ public class CreativityEssenceService {
 			}
 
 			PacketSendUtility.sendPacket(player, new SM_SKILL_LIST(player, player.getSkillList().getAllSkills()));
-			PacketSendUtility.sendPacket(player, new SM_CREATIVITY_POINTS(player.getCreativityPoint(), clientStep, player.getCP().getAllCP()));
+
+			// Update CP from level, exp, estima.
+			onNotifyEstimaChanges(player);
 		}
 	}
 
@@ -346,6 +340,10 @@ public class CreativityEssenceService {
 			creativityPoints = ArchDaevaConfig.CP_LIMIT_MAX;
 		}
 
+		int currentLevelPoint = getPointsFromCurrentStep(player);
+		int clientStep = getClientStep(player.getLevel(), currentLevelPoint);
+
+		player.setCPStep(clientStep);
 		player.setCreativityPoint(creativityPoints);
 
 		PacketSendUtility.sendPacket(player, new SM_CREATIVITY_POINTS(creativityPoints, player.getCPStep(), player.getCP().getAllCP()));
