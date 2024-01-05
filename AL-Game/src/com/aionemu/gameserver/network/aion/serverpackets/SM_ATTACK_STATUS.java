@@ -81,21 +81,38 @@ public class SM_ATTACK_STATUS extends AionServerPacket {
 
 	@Override
 	protected void writeImpl(AionConnection con) {
-		writeD(creature.getObjectId());
-		switch (type) {
-		case DAMAGE:
-		case DELAYDAMAGE:
-			writeD(-value);
-			break;
-		default:
-			writeD(value);
+		if (type.getValue() == 5 || type.getValue() == 7 || type.getValue() == 10) {
+			writeD(creature.getObjectId());
+			writeD(con.getActivePlayer().getObjectId());
 		}
-		writeD(0);
+		else {
+			writeD(con.getActivePlayer().getObjectId());
+			writeD(0x00);
+		}
+		switch (type) {
+			case ATTACK:
+			case DAMAGE:
+			case DELAYDAMAGE:
+				writeD(-value);
+				break;
+			default:
+				writeD(value);
+		}
 		writeC(type.getValue());
 		writeC(creature.getLifeStats().getHpPercentage());
 		writeH(skillId);
-		writeH(0);
-		if (this.skillId != 0) {
+		writeH(0); // skinId
+//		if (attacker instanceof Player) {
+//			Player player = (Player) attacker;
+//			if (player != null) {
+//				writeH(player.getSkillSkinList().getSkinId(skillId));
+//			} else {
+//				writeH(0);
+//			}
+//		} else {
+//			writeH(0); // 5.3
+		//}
+		if (skillId != 0) {
 			writeH(logId);
 		} else {
 			writeH(LOG.ATTACK.getValue());
