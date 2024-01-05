@@ -214,13 +214,13 @@ public class CreativityEssenceService {
 
 			creativityPoints += player.getEstimaCreativityPoint();
 
+			if (creativityPoints > ArchDaevaConfig.CP_LIMIT_MAX) {
+				creativityPoints = ArchDaevaConfig.CP_LIMIT_MAX;
+			}
+
 			if (oldCreativityPoints != creativityPoints) {
 				int currentLevelPoint = getPointsFromCurrentStep(player);
 				int clientStep = getClientStep(player.getLevel(), currentLevelPoint);
-
-				if (creativityPoints > ArchDaevaConfig.CP_LIMIT_MAX) {
-					creativityPoints = ArchDaevaConfig.CP_LIMIT_MAX;
-				}
 
 				player.getCommonData().addAuraOfGrowth(1060000 * 10);
 
