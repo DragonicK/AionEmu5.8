@@ -72,7 +72,7 @@ public abstract class AbstractHealEffect extends EffectTemplate {
 			finalHeal = 0;
 		}
 		effect.setReservedInt(position, finalHeal);
-		effect.setReserved1(-finalHeal);
+		//effect.setReserved1(-finalHeal);
 	}
 
 	public void applyEffect(Effect effect, HealType healType) {
