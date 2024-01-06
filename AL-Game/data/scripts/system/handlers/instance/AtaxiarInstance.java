@@ -20,10 +20,13 @@ import com.aionemu.gameserver.dataholders.DataManager;
 import com.aionemu.gameserver.instance.handlers.GeneralInstanceHandler;
 import com.aionemu.gameserver.instance.handlers.InstanceID;
 import com.aionemu.gameserver.model.EmotionType;
+import com.aionemu.gameserver.model.Race;
 import com.aionemu.gameserver.model.gameobjects.Creature;
 import com.aionemu.gameserver.model.gameobjects.player.Player;
 import com.aionemu.gameserver.network.aion.serverpackets.SM_DIE;
 import com.aionemu.gameserver.network.aion.serverpackets.SM_EMOTION;
+import com.aionemu.gameserver.questEngine.model.QuestState;
+import com.aionemu.gameserver.questEngine.model.QuestStatus;
 import com.aionemu.gameserver.skillengine.model.Effect;
 import com.aionemu.gameserver.skillengine.model.SkillTemplate;
 import com.aionemu.gameserver.utils.PacketSendUtility;
@@ -39,17 +42,30 @@ public class AtaxiarInstance extends GeneralInstanceHandler
 {
 	@Override
     public void onEnterZone(Player player, ZoneInstance zone) {
-        if (zone.getAreaTemplate().getZoneName() == ZoneName.get("FLOATING_ISLAND_A_2_320020000")) {
+        if (zone.getAreaTemplate().getZoneName() == ZoneName.get("VANPERN_OBELISK_2_320020000")) {
             shieldOfHagen();
 	    }
     }
 	
 	private void shieldOfHagen() {
 		for (Player p: instance.getPlayersInside()) {
-			SkillTemplate st =  DataManager.SKILL_DATA.getSkillTemplate(257); //Shield Of Hagen.
-			Effect e = new Effect(p, p, st, 1, st.getEffectsDuration(9));
-			e.initialize();
-			e.applyEffect();
+			QuestState qs = p.getQuestStateList().getQuestState(2008);
+			boolean canApply = false;
+
+			if (qs != null) {
+				if (qs.getStatus() == QuestStatus.START) {
+					if (qs.getQuestVarById(0) != 0) {
+						canApply = true;
+					}
+				}
+			}
+
+			if (canApply) {
+				SkillTemplate st =  DataManager.SKILL_DATA.getSkillTemplate(257); //Shield Of Hagen.
+				Effect e = new Effect(p, p, st, 1, st.getEffectsDuration(9));
+				e.initialize();
+				e.applyEffect();
+			}
 		}
 	}
 }
