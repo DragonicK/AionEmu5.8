@@ -31,8 +31,7 @@ import com.aionemu.gameserver.model.templates.item.ArmorType;
 import com.aionemu.gameserver.model.templates.item.WeaponType;
 import com.aionemu.gameserver.model.templates.ride.RideInfo;
 import com.aionemu.gameserver.model.templates.stats.PlayerStatsTemplate;
-import com.aionemu.gameserver.network.aion.serverpackets.SM_EMOTION;
-import com.aionemu.gameserver.network.aion.serverpackets.SM_STATS_INFO;
+import com.aionemu.gameserver.network.aion.serverpackets.*;
 import com.aionemu.gameserver.taskmanager.tasks.PacketBroadcaster.BroadcastMode;
 import com.aionemu.gameserver.utils.PacketSendUtility;
 
@@ -64,6 +63,9 @@ public class PlayerGameStats extends CreatureGameStats<Player> {
 
 	public void updateStatsVisually() {
 		owner.addPacketBroadcastMask(BroadcastMode.UPDATE_STATS);
+
+		PacketSendUtility.sendPacket(owner, new SM_STATUPDATE_HP(owner.getLifeStats().currentHp, owner.getLifeStats().getMaxHp()));
+		PacketSendUtility.sendPacket(owner, new SM_STATUPDATE_MP(owner.getLifeStats().currentMp, owner.getLifeStats().getMaxMp()));
 	}
 
 	private void checkSpeedStats() {
