@@ -49,14 +49,8 @@ public class KaramatisInstance extends GeneralInstanceHandler
 	
 	private void belpartanBlessing() {
 		for (Player p: instance.getPlayersInside()) {
-			QuestState qs = null;
+			QuestState qs = p.getQuestStateList().getQuestState(1006);
 			boolean canApply = false;
-
-			if (p.getRace() == Race.ELYOS) {
-				qs = p.getQuestStateList().getQuestState(1006);
-			}else if (p.getRace() == Race.ASMODIANS) {
-				qs = p.getQuestStateList().getQuestState(2008);
-			}
 
 			if (qs != null) {
 				if (qs.getStatus() == QuestStatus.START) {
