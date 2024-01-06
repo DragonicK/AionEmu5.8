@@ -969,7 +969,7 @@ public class Skill {
 		case 4805: // Transformation: Avatar Of Water.
 		case 4806: // Transformation: Avatar Of Earth.
 		case 4807: // Transformation: Avatar Of Wind.
-			return cooldown - 300 * SkillLevel;
+			return cooldown - 3000 * SkillLevel - 1;
 		}
 		return cooldown;
 	}
