@@ -117,6 +117,10 @@ public class _13830Stigma_101 extends QuestHandler {
 
         final QuestState qs = player.getQuestStateList().getQuestState(questId);
 
+		if (qs == null) {
+			return false;
+		}
+		
 		int targetId = env.getTargetId();
 
 		if (qs.getStatus() == QuestStatus.REWARD) {

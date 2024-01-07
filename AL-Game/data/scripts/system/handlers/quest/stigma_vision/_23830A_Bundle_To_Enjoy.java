@@ -85,6 +85,9 @@ public class _23830A_Bundle_To_Enjoy extends QuestHandler
 	public boolean onDialogEvent(QuestEnv env) {
 		final Player player = env.getPlayer();
         final QuestState qs = player.getQuestStateList().getQuestState(questId);
+		if (qs == null) {
+			return false;
+		}
 		int targetId = env.getTargetId();
 		if (qs.getStatus() == QuestStatus.REWARD) {
             if (targetId == 204061) { //Aud.
