@@ -46,7 +46,12 @@ public class KaramatisInstance extends GeneralInstanceHandler
             belpartanBlessing();
 	    }
     }
-	
+
+	@Override
+	public void onLeaveInstance(Player player) {
+		player.getEffectController().removeEffect(281);
+	}
+
 	private void belpartanBlessing() {
 		for (Player p: instance.getPlayersInside()) {
 			QuestState qs = p.getQuestStateList().getQuestState(1006);
