@@ -47,6 +47,9 @@ public class _30217Group_Stigmas_Scars extends QuestHandler
 	public boolean onDialogEvent(QuestEnv env) {
 		final Player player = env.getPlayer();
 		QuestState qs = player.getQuestStateList().getQuestState(questId);
+		if (qs == null) {
+			return false;
+		}
 		int targetId = 0;
 		if (env.getVisibleObject() instanceof Npc)
 			targetId = ((Npc) env.getVisibleObject()).getNpcId();

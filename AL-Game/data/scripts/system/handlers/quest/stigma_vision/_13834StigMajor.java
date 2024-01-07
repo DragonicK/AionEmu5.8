@@ -114,6 +114,10 @@ public class _13834StigMajor extends QuestHandler {
 
         final QuestState qs = player.getQuestStateList().getQuestState(questId);
 
+		if (qs == null) {
+			return false;
+		}
+		
 		int targetId = env.getTargetId();
 
 		if (qs.getStatus() == QuestStatus.REWARD) {
