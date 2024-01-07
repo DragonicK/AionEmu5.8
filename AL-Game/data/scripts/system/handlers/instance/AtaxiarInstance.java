@@ -46,7 +46,12 @@ public class AtaxiarInstance extends GeneralInstanceHandler
             shieldOfHagen();
 	    }
     }
-	
+
+	@Override
+	public void onLeaveInstance(Player player) {
+		player.getEffectController().removeEffect(257);
+	}
+
 	private void shieldOfHagen() {
 		for (Player p: instance.getPlayersInside()) {
 			QuestState qs = p.getQuestStateList().getQuestState(2008);
