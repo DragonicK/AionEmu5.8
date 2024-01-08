@@ -143,7 +143,9 @@ public class _13830Stigma_101 extends QuestHandler {
 
 				PacketSendUtility.sendPacket(player, new SM_DIALOG_WINDOW(203711, 0));
 
-				return sendQuestEndDialog(env);
+				if (QuestService.finishQuest(env)) {
+					return closeDialogWindow(env);
+				}
 			}
 		}
 
