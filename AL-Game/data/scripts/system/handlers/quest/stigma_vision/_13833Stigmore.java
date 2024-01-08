@@ -140,7 +140,9 @@ public class _13833Stigmore extends QuestHandler {
 
 				PacketSendUtility.sendPacket(player, new SM_DIALOG_WINDOW(203711, 0));
 
-				return sendQuestEndDialog(env);
+				if (QuestService.finishQuest(env)) {
+					return closeDialogWindow(env);
+				}
 			}
 		}
 
