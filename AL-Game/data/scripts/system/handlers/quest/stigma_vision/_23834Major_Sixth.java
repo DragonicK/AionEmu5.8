@@ -19,10 +19,12 @@ package quest.stigma_vision;
 import com.aionemu.gameserver.model.Race;
 import com.aionemu.gameserver.model.gameobjects.*;
 import com.aionemu.gameserver.model.gameobjects.player.Player;
+import com.aionemu.gameserver.network.aion.serverpackets.SM_DIALOG_WINDOW;
 import com.aionemu.gameserver.questEngine.handlers.*;
 import com.aionemu.gameserver.questEngine.model.*;
 import com.aionemu.gameserver.services.*;
 import com.aionemu.gameserver.services.mail.*;
+import com.aionemu.gameserver.utils.PacketSendUtility;
 import com.aionemu.gameserver.world.zone.*;
 
 /****/
@@ -97,6 +99,17 @@ public class _23834Major_Sixth extends QuestHandler
 					return sendQuestDialog(env, 5);
 				} else {
 					return sendQuestEndDialog(env);
+				}
+			}
+			else { // Bounty Quest
+				// Selected item is not optional.
+				env.setDialogId(QuestDialog.SELECTED_QUEST_REWARD1.id());
+				env.setExtendedRewardIndex(1);
+
+				PacketSendUtility.sendPacket(player, new SM_DIALOG_WINDOW(204061, 0));
+
+				if (QuestService.finishQuest(env)) {
+					return closeDialogWindow(env);
 				}
 			}
 		}
