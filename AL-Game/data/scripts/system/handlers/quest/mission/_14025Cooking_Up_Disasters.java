@@ -54,15 +54,16 @@ public class _14025Cooking_Up_Disasters extends QuestHandler {
 		}
 	}
 
+    // Aion 5.8, only requisite is quest 14020
 	@Override
 	public boolean onZoneMissionEndEvent(QuestEnv env) {
-		return defaultOnZoneMissionEndEvent(env, 14024);
+		return defaultOnZoneMissionEndEvent(env);
 	}
 
+	// Aion 5.8, only requisite is quest 14020
 	@Override
 	public boolean onLvlUpEvent(QuestEnv env) {
-		int[] quests = { 14020, 14024 };
-		return defaultOnLvlUpEvent(env, quests, false);
+		return defaultOnLvlUpEvent(env, 14020, false);
 	}
 
 	@Override
