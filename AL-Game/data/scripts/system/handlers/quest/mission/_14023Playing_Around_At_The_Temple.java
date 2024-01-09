@@ -29,10 +29,11 @@ public class _14023Playing_Around_At_The_Temple extends QuestHandler
     public boolean onZoneMissionEndEvent(QuestEnv env) {
         return defaultOnZoneMissionEndEvent(env);
     }
-	
+
+    // Aion 5.8, only requisite is quest 14020
     @Override
     public boolean onLvlUpEvent(QuestEnv env) {
-        return defaultOnLvlUpEvent(env, 14022, false);
+        return defaultOnLvlUpEvent(env, 14020, false);
     }
 	
     @Override

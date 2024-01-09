@@ -46,10 +46,11 @@ public class _14024A_Kralling_Suspicion extends QuestHandler
     public boolean onZoneMissionEndEvent(QuestEnv env) {
         return defaultOnZoneMissionEndEvent(env);
     }
-	
+
+    // Aion 5.8, only requisite is quest 14020
     @Override
     public boolean onLvlUpEvent(QuestEnv env) {
-        return defaultOnLvlUpEvent(env, 14023, false);
+        return defaultOnLvlUpEvent(env, 14020, false);
     }
 	
     @Override

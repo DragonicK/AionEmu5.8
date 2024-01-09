@@ -47,10 +47,11 @@ public class _14022The_Test_Of_The_Heart extends QuestHandler
     public boolean onZoneMissionEndEvent(QuestEnv env) {
         return defaultOnZoneMissionEndEvent(env);
     }
-	
+
+    // Aion 5.8, only requisite is quest 14020
     @Override
     public boolean onLvlUpEvent(QuestEnv env) {
-        return defaultOnLvlUpEvent(env, 14021, false);
+        return defaultOnLvlUpEvent(env, 14020, false);
     }
 	
     @Override
