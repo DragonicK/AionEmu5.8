@@ -19,6 +19,7 @@ package com.aionemu.gameserver.services.gc;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import com.aionemu.gameserver.utils.ThreadPoolManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,10 +61,7 @@ public class GarbageCollector extends Thread {
 	}
 
 	private void StartMemoryOptimization() {
-
-		Timer t = new Timer();
-		t.schedule(new TimerTask() {
-
+		ThreadPoolManager.getInstance().scheduleAtFixedRate(new Runnable() {
 			@Override
 			public void run() {
 				try {
@@ -82,6 +80,6 @@ public class GarbageCollector extends Thread {
 					log.error("[GarbageCollector] Error on optimizing memory: " + e.getMessage());
 				}
 			}
-		}, g_Period);
+		}, g_Period, g_Period);
 	}
 }
