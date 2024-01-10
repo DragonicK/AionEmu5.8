@@ -125,6 +125,12 @@ public class StigmaService {
 						int stigmaLevel = item.getEnchantLevel();
 						int skillLevel = skillTree.getSkillLevel();
 
+						PlayerSkillEntry entry = player.getSkillList().getSkillEntry(skillTree.getSkillId());
+
+						if (entry != null) {
+							entry.setSkillLvl(stigmaLevel + skillLevel + stigmaSetLevel);
+						}
+
 						player.getSkillList().addStigmaSkill(player, skillTree.getSkillId(), stigmaLevel + skillLevel + stigmaSetLevel);
 					}
 				}
@@ -253,6 +259,12 @@ public class StigmaService {
 					if (item.getItemTemplate().isStigma() && item.getSkillGroup().equals(skillTree.getSkillGroup())) {
 						int stigmaItemLevel = item.getEnchantLevel();
 						int skillLevel = skillTree.getSkillLevel();
+
+						PlayerSkillEntry entry = player.getSkillList().getSkillEntry(skillTree.getSkillId());
+
+						if (entry != null) {
+							entry.setSkillLvl(stigmaItemLevel + skillLevel + stigmaSetLevel);
+						}
 
 						player.getSkillList().addStigmaSkill(player, skillTree.getSkillId(),  stigmaItemLevel + skillLevel + stigmaSetLevel);
 					}
