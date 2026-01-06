@@ -30,7 +30,6 @@
 package com.aionemu.commons.utils.internal.chmv8;
 
 import com.aionemu.commons.utils.SystemPropertyUtil;
-import sun.misc.Cleaner;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -45,7 +44,6 @@ import java.nio.ByteBuffer;
 final class PlatformDependent0 {
 
     private static final Unsafe UNSAFE;
-    private static final long CLEANER_FIELD_OFFSET;
     private static final long ADDRESS_FIELD_OFFSET;
     /**
      * {@code true} if and only if the platform supports unaligned access.
@@ -57,17 +55,6 @@ final class PlatformDependent0 {
     private static final boolean UNALIGNED;
 
     static {
-        ByteBuffer direct = ByteBuffer.allocateDirect(1);
-        Field cleanerField;
-        try {
-            cleanerField = direct.getClass().getDeclaredField("cleaner");
-            cleanerField.setAccessible(true);
-            Cleaner cleaner = (Cleaner) cleanerField.get(direct);
-            cleaner.clean();
-        } catch (Throwable t) {
-            cleanerField = null;
-        }
-
         Field addressField;
         try {
             addressField = Buffer.class.getDeclaredField("address");
@@ -75,19 +62,17 @@ final class PlatformDependent0 {
             if (addressField.getLong(ByteBuffer.allocate(1)) != 0) {
                 addressField = null;
             } else {
-                direct = ByteBuffer.allocateDirect(1);
+                ByteBuffer direct = ByteBuffer.allocateDirect(1);
                 if (addressField.getLong(direct) == 0) {
                     addressField = null;
                 }
-                Cleaner cleaner = (Cleaner) cleanerField.get(direct);
-                cleaner.clean();
             }
         } catch (Throwable t) {
             addressField = null;
         }
 
         Unsafe unsafe;
-        if (addressField != null && cleanerField != null) {
+        if (addressField != null) {
             try {
                 Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
                 unsafeField.setAccessible(true);
@@ -108,12 +93,10 @@ final class PlatformDependent0 {
         UNSAFE = unsafe;
 
         if (unsafe == null) {
-            CLEANER_FIELD_OFFSET = -1;
             ADDRESS_FIELD_OFFSET = -1;
             UNALIGNED = false;
         } else {
             ADDRESS_FIELD_OFFSET = objectFieldOffset(addressField);
-            CLEANER_FIELD_OFFSET = objectFieldOffset(cleanerField);
 
             boolean unaligned;
             try {
@@ -140,13 +123,10 @@ final class PlatformDependent0 {
     }
 
     static void freeDirectBuffer(ByteBuffer buffer) {
-        Cleaner cleaner;
         try {
-            cleaner = (Cleaner) getObject(buffer, CLEANER_FIELD_OFFSET);
-            if (cleaner == null) {
-                throw new IllegalArgumentException("attempted to deallocate the buffer which was allocated via JNIEnv->NewDirectByteBuffer()");
+            if (UNSAFE != null) {
+                UNSAFE.invokeCleaner(buffer);
             }
-            cleaner.clean();
         } catch (Throwable t) {
             // Nothing we can do here.
         }

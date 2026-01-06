@@ -36,6 +36,7 @@ import java.net.URL;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.Locale;
+import javax.tools.ToolProvider;
 
 /**
  * The Locator is a utility class which is used to find certain items in the
@@ -180,25 +181,9 @@ public final class Locator {
      * @return the tools jar as a File if required, null otherwise.
      */
     public static File getToolsJar() {
-        // firstly check if the tools jar is already in the classpath
-        boolean toolsJarAvailable = false;
-        try {
-            // just check whether this throws an exception
-            Class.forName("com.sun.tools.javac.Main");
-            toolsJarAvailable = true;
-        } catch (Exception e) {
-            try {
-                Class.forName("sun.tools.javac.Main");
-                toolsJarAvailable = true;
-            } catch (Exception e2) {
-                // ignore
-            }
-        }
-        if (toolsJarAvailable) {
+        if (ToolProvider.getSystemJavaCompiler() != null) {
             return null;
         }
-        // couldn't find compiler - try to find tools.jar
-        // based on java.home setting
         String javaHome = System.getProperty("java.home");
         if (javaHome.toLowerCase(Locale.US).endsWith("jre")) {
             javaHome = javaHome.substring(0, javaHome.length() - 4);
