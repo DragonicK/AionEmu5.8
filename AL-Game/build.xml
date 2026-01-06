@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="AL-Game" default="dist" basedir=".">
     <description></description>
-    <property name="jre" location="${java.home}/lib"/>
     <property name="src" location="src"/>
     <property name="config" location="config"/>
     <property name="lib" location="libs"/>
@@ -9,15 +8,6 @@
     <property name="build.classes" location="${build}/classes"/>
     <property name="build.dist" location="${build}/dist"/>
     <property name="build.dist.gs" location="${build.dist}/AL-Game"/>
-    <path id="bootclasspath">
-		<fileset dir="${lib}">
-			<include name="jsr166-1.7.0.jar"/>
-		</fileset>
-		<fileset dir="${jre}">
-			<include name="rt.jar"/>
-			<include name="jce.jar"/>
-		</fileset>
-	</path>
 	<path id="classpath">
 		<fileset dir="${lib}">
 			<include name="*.jar"/>
@@ -31,11 +21,10 @@
         <mkdir dir="${build.classes}"/>
     </target>
     <target name="compile" depends="init" description="Compile the source.">
-        <javac destdir="${build.classes}" optimize="on" debug="on" nowarn="off" source="1.7" target="1.7" includeantruntime="false">
+        <javac destdir="${build.classes}" optimize="on" debug="on" nowarn="off" source="21" target="21" includeantruntime="false">
 			<compilerarg value="-encoding"/>
 			<compilerarg value="UTF8"/>
 			<src path="${src}"/>
-			<bootclasspath refid="bootclasspath"/>
 			<classpath refid="classpath"/>
 		</javac>
     </target>
