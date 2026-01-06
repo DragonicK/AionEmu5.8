@@ -18,7 +18,6 @@
 	</description>
 
 	<property name="author" location="GiGatR00n"/>
-	<property name="jre" location="${java.home}/lib"/>
 	<property name="src" location="src"/>
 	<property name="config" location="config"/>
 	<property name="lib" location="libs"/>
@@ -26,16 +25,6 @@
 	<property name="build.classes" location="${build}/classes"/>
 	<property name="build.dist" location="${build}/dist"/>
 	<property name="build.dist.chat" location="${build.dist}/AC-Chat"/>
-	<path id="bootclasspath">
-        <fileset dir="${lib}">
-        	<include name="jsr166-1.7.0.jar"/>
-        </fileset>
-		<fileset dir="${jre}">
-			<include name="rt.jar"/>
-			<include name="jce.jar"/>
-		</fileset>
-    </path>
-
 	<path id="classpath">
 		<fileset dir="${lib}">
 			<include name="*.jar" />
@@ -58,12 +47,11 @@
             description="Compile the source.">
         <javac destdir="${build.classes}" optimize="on" debug="on" 
         	nowarn="off" 
-        	source="1.6"
-            target="1.6"
+        	source="21"
+            target="21"
         includeantruntime="false">
         	
         	<src path="${src}"/>
-        	<bootclasspath refid="bootclasspath"/>
             <classpath refid="classpath"/> 
 		</javac>
 	</target>
