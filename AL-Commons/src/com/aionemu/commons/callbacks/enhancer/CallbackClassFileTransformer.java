@@ -62,7 +62,7 @@ public abstract class CallbackClassFileTransformer implements ClassFileTransform
         try {
             // no need to scan whole jvm boot classpath
             // also there is no need to transform classes from jvm 'ext' dir
-            if (loader == null || loader.getClass().getName().equals("sun.misc.Launcher$ExtClassLoader")) {
+            if (loader == null || isPlatformClassLoader(loader)) {
                 log.trace("Class " + className + " ignored.");
                 return null;
             }
@@ -76,7 +76,7 @@ public abstract class CallbackClassFileTransformer implements ClassFileTransform
 
             // if it is a class from core (not a script) - terminate server
             // noinspection ConstantConditions
-            if (loader.getClass().getName().equals("sun.misc.Launcher$AppClassLoader")) {
+            if (isApplicationClassLoader(loader)) {
                 Runtime.getRuntime().halt(ExitCode.CODE_ERROR);
             }
 
@@ -93,4 +93,14 @@ public abstract class CallbackClassFileTransformer implements ClassFileTransform
      * @throws Exception if something went wrong
      */
     protected abstract byte[] transformClass(ClassLoader loader, byte[] clazzBytes) throws Exception;
+
+    private boolean isPlatformClassLoader(ClassLoader loader) {
+        return loader == ClassLoader.getPlatformClassLoader()
+                || "jdk.internal.loader.ClassLoaders$PlatformClassLoader".equals(loader.getClass().getName());
+    }
+
+    private boolean isApplicationClassLoader(ClassLoader loader) {
+        return loader == ClassLoader.getSystemClassLoader()
+                || "jdk.internal.loader.ClassLoaders$AppClassLoader".equals(loader.getClass().getName());
+    }
 }
