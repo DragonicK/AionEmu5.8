@@ -1,0 +1,6 @@
+rootProject.name = 'AionEmu5.8'
+
+include 'AL-Commons'
+include 'AL-Chat'
+include 'AL-Game'
+include 'AL-Login'

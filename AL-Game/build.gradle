@@ -1,0 +1,21 @@
+dependencies {
+    implementation project(':AL-Commons')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src', 'handlers', 'database']
+        }
+    }
+}
+
+jar {
+    archiveBaseName = 'AL-Game'
+    manifest {
+        attributes(
+            'Main-Class': 'com.aionemu.gameserver.GameServer'
+        )
+    }
+}
