@@ -37,7 +37,7 @@ import com.aionemu.commons.scripting.scriptmanager.ScriptManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;

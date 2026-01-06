@@ -26,7 +26,7 @@
 	</target>
 	<target name="compile" depends="init" description="Compile the source.">
 		<javac destdir="${build.classes}" optimize="on" debug="on"
-			nowarn="off" source="1.7" target="1.7" includeantruntime="false">
+			nowarn="off" source="21" target="21" includeantruntime="false">
 			<src path="${src}" />
 			<classpath refid="classpath" />
 		</javac>

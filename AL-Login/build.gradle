@@ -1,0 +1,21 @@
+dependencies {
+    implementation project(':AL-Commons')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src', 'data/scripts/system/database']
+        }
+    }
+}
+
+jar {
+    archiveBaseName = 'AL-Login'
+    manifest {
+        attributes(
+            'Main-Class': 'loginserver.LoginServer'
+        )
+    }
+}

@@ -29,7 +29,7 @@
  */
 package com.aionemu.commons.scripting.scriptmanager;
 
-import javax.xml.bind.annotation.*;
+import jakarta.xml.bind.annotation.*;
 import java.io.File;
 import java.util.List;
 
